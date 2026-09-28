@@ -217,6 +217,7 @@ export const DisciplinesScene = memo(function DisciplinesScene({
               onFocus={(event) => {
                 if (event.currentTarget.matches(':focus-visible') && activeCategory !== item.id) selectCategory(item.id);
               }}
+              onBlur={() => onHoverStateChange?.(null)}
               onPointerEnter={(event) => { if (isActive && event.pointerType !== 'touch') selectCategory(item.id, event); }}
               onPointerMove={(event) => handleHeadingMove(event, item.id)}
               onPointerLeave={() => { hoveredCategoryRef.current = null; onHoverStateChange?.(null); }}
