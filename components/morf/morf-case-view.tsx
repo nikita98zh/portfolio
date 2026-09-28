@@ -225,6 +225,7 @@ export function MorfCaseView({ onClose }: MorfCaseViewProps): React.ReactElement
             }
           }
 
+          // Keep the GSAP sequence in sync with VRAK; only the campaign images differ.
           const stickySection = container.querySelector('.morf-sticky-grid-section');
           const stickyWrapper = container.querySelector('.morf-sticky-grid-wrapper');
           const gridContainer = container.querySelector('.morf-sticky-grid');
