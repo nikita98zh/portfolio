@@ -225,48 +225,201 @@ export function MorfCaseView({ onClose }: MorfCaseViewProps): React.ReactElement
             }
           }
 
-          const finale = container.querySelector<HTMLElement>('.morf-sticky-grid-section');
-          const gallery = container.querySelector<HTMLElement>('.morf-sticky-gallery');
-          const gridItems = container.querySelectorAll<HTMLElement>('.morf-sticky-grid-item');
-          const center = container.querySelector<HTMLElement>('.morf-sticky-center-content');
-          const title = container.querySelector<HTMLElement>('.morf-sticky-title');
-          const cta = container.querySelector<HTMLElement>('.morf-sticky-cta');
+          const stickySection = container.querySelector('.morf-sticky-grid-section');
+          const stickyWrapper = container.querySelector('.morf-sticky-grid-wrapper');
+          const gridContainer = container.querySelector('.morf-sticky-grid');
+          const gridItems = gsap.utils.toArray<HTMLElement>('.morf-sticky-grid-item');
+          const centerContent = container.querySelector('.morf-sticky-center-content');
+          const centerTitle = container.querySelector('.morf-sticky-title');
+          const centerButton = container.querySelector('.morf-sticky-cta');
 
-          if (finale && gallery && center && title && cta && gridItems.length === 6) {
-            gsap.set(gridItems, { opacity: 0, y: desktop ? 48 : 20, clipPath: 'inset(5% 0%)' });
-            gsap.set(center, { autoAlpha: 0 });
-            gsap.set(title, { y: desktop ? 28 : 16, opacity: 0 });
-            gsap.set(cta, { y: 12, opacity: 0 });
+          if (stickySection && stickyWrapper && gridContainer && gridItems.length === 6) {
+            // Distribute 6 items into 3 columns:
+            // Col 0 (left): items 0 & 3
+            // Col 1 (center): items 1 & 4
+            // Col 2 (right): items 2 & 5
+            const col0 = [gridItems[0], gridItems[3]];
+            const col1 = [gridItems[1], gridItems[4]];
+            const col2 = [gridItems[2], gridItems[5]];
 
-            gsap.timeline({
+            const isMobile = window.innerWidth < 768;
+            const initialDy = window.innerHeight * 1.35;
+            const targetScale = isMobile ? 1.6 : 1.95;
+            const xOffset = isMobile ? 44 : 54;
+            const yOffset = isMobile ? 48 : 58;
+
+            // Initial setup:
+            // Even columns (0 and 2) start from above the viewport (-initialDy)
+            // Odd column (1, center) starts from below the viewport (+initialDy)
+            gsap.set([col0, col2], { y: -initialDy, opacity: 0.95 });
+            gsap.set(col1, { y: initialDy, opacity: 0.95 });
+            gsap.set(gridContainer, { scale: 1, transformOrigin: 'center center' });
+
+            // Center content initial state
+            if (centerContent) {
+              gsap.set(centerContent, { opacity: 0, pointerEvents: 'none' });
+            }
+            if (centerTitle) {
+              gsap.set(centerTitle, { y: 35, opacity: 0 });
+            }
+            if (centerButton) {
+              gsap.set(centerButton, { y: 20, opacity: 0 });
+            }
+
+            const tl = gsap.timeline({
               scrollTrigger: {
-                trigger: finale,
+                trigger: stickySection,
                 scroller: container,
                 start: 'top top',
                 end: 'bottom bottom',
-                scrub: 0.7,
+                scrub: 0.8,
               },
-            })
-              .to(gridItems, {
-                opacity: 1,
+            });
+
+            // Phase 1: Grid Reveal (Columns slide in to assemble the 3x2 grid)
+            tl.to(
+              col0,
+              {
                 y: 0,
-                clipPath: 'inset(0% 0%)',
-                duration: 1,
-                stagger: { each: desktop ? 0.12 : 0.09, from: 'center' },
+                opacity: 1,
+                stagger: 0.08,
+                duration: 1.5,
                 ease: 'power2.out',
-              })
-              .to({}, { duration: 0.5 })
-              .to(gallery, {
-                opacity: 0.22,
-                y: desktop ? -22 : -10,
-                scale: desktop ? 0.965 : 0.98,
-                duration: 1.1,
-                ease: 'power1.inOut',
-              })
-              .to(center, { autoAlpha: 1, duration: 0.35 }, '-=0.4')
-              .to(title, { y: 0, opacity: 1, duration: 0.7, ease: 'power2.out' }, '<')
-              .to(cta, { y: 0, opacity: 1, duration: 0.6, ease: 'power2.out' }, '-=0.55')
-              .to({}, { duration: 0.7 });
+              },
+              'reveal'
+            );
+
+            tl.to(
+              col2,
+              {
+                y: 0,
+                opacity: 1,
+                stagger: 0.08,
+                duration: 1.5,
+                ease: 'power2.out',
+              },
+              'reveal'
+            );
+
+            tl.to(
+              col1,
+              {
+                y: 0,
+                opacity: 1,
+                stagger: 0.08,
+                duration: 1.5,
+                ease: 'power2.out',
+              },
+              'reveal'
+            );
+
+            // Phase 2: Settle / brief pause where user sees full grid
+            tl.to({}, { duration: 0.4 });
+
+            // Phase 3: Grid Zoom & Aperture Expansion
+            tl.to(
+              gridContainer,
+              {
+                scale: targetScale,
+                duration: 1.8,
+                ease: 'power2.inOut',
+              },
+              'zoom'
+            );
+
+            tl.to(
+              col0,
+              {
+                xPercent: -xOffset,
+                duration: 1.8,
+                ease: 'power2.inOut',
+              },
+              'zoom'
+            );
+
+            tl.to(
+              col2,
+              {
+                xPercent: xOffset,
+                duration: 1.8,
+                ease: 'power2.inOut',
+              },
+              'zoom'
+            );
+
+            // In center column: top item moves UP, bottom item moves DOWN
+            tl.to(
+              col1[0],
+              {
+                yPercent: -yOffset,
+                duration: 1.8,
+                ease: 'power2.inOut',
+              },
+              'zoom'
+            );
+
+            tl.to(
+              col1[1],
+              {
+                yPercent: yOffset,
+                duration: 1.8,
+                ease: 'power2.inOut',
+              },
+              'zoom'
+            );
+
+            // Soften background images so center text has immaculate readability
+            tl.to(
+              gridItems,
+              {
+                opacity: 0.42,
+                duration: 1.2,
+                ease: 'power1.out',
+              },
+              'zoom+=0.4'
+            );
+
+            // Phase 4: Center Content Reveal ("THANKS FOR WATCHING")
+            if (centerContent) {
+              tl.to(
+                centerContent,
+                {
+                  opacity: 1,
+                  pointerEvents: 'auto',
+                  duration: 0.2,
+                },
+                'zoom+=0.7'
+              );
+            }
+
+            if (centerTitle) {
+              tl.to(
+                centerTitle,
+                {
+                  y: 0,
+                  opacity: 1,
+                  duration: 0.8,
+                  ease: 'power3.out',
+                },
+                'zoom+=0.8'
+              );
+            }
+
+            if (centerButton) {
+              tl.to(
+                centerButton,
+                {
+                  y: 0,
+                  opacity: 1,
+                  duration: 0.7,
+                  ease: 'power3.out',
+                },
+                'zoom+=0.95'
+              );
+            }
+
+            // Phase 5: Holding phase at the end
+            tl.to({}, { duration: 1.2 });
           }
         }, container);
 
@@ -500,12 +653,6 @@ export function MorfCaseView({ onClose }: MorfCaseViewProps): React.ReactElement
                   className="w-full h-auto aspect-[0.32] object-cover"
                   alt="MORF coat product detail page"
                   src="/assets/morf/PDP COAT 01.png"
-                  onError={(e) => {
-                    const target = e.currentTarget;
-                    if (target.src !== window.location.origin + '/assets/morf/HOME.png') {
-                      target.src = '/assets/morf/HOME.png';
-                    }
-                  }}
                   loading="lazy"
                   decoding="async"
                 />
@@ -616,17 +763,17 @@ export function MorfCaseView({ onClose }: MorfCaseViewProps): React.ReactElement
         </section>
 
         {/* =========================================================================
-            10. CAMPAIGN FINALE
-            Six campaign images assemble, then recede behind the closing line.
+            10. STICKY GRID APERTURE FINALE (same motion as VRAK)
+            Six MORF campaign images part to reveal the closing line.
             ========================================================================= */}
         <section
-          className="morf-sticky-grid-section relative z-20 w-full h-[210vh] md:h-[250vh] bg-[var(--bg)] motion-reduce:h-[100dvh]"
+          className="morf-sticky-grid-section relative z-20 w-full h-[380vh] bg-[var(--bg)] motion-reduce:h-[100dvh]"
           aria-label="MORF campaign finale and gallery"
         >
           <div className="morf-sticky-grid-wrapper sticky top-0 w-full h-screen max-h-[100dvh] overflow-hidden flex items-center justify-center relative select-none">
-            {/* The campaign recedes before the final line appears. */}
-            <div className="morf-sticky-center-content invisible opacity-0 motion-reduce:visible motion-reduce:opacity-100 absolute inset-0 z-20 flex flex-col items-center justify-center text-center px-6 pointer-events-none">
-              <h2 className="morf-sticky-title font-manrope font-extralight text-4xl sm:text-6xl md:text-7xl lg:text-8xl tracking-tight text-[var(--text)] uppercase leading-none select-none">
+            {/* Center content appears in the aperture created by the parting images. */}
+            <div className="morf-sticky-center-content absolute inset-0 z-20 flex flex-col items-center justify-center text-center px-6 pointer-events-none">
+              <h2 className="morf-sticky-title font-manrope font-bold text-4xl sm:text-6xl md:text-7xl lg:text-8xl tracking-tight text-[var(--text)] uppercase leading-none select-none">
                 THANKS FOR WATCHING
               </h2>
               <div className="morf-sticky-cta mt-6 sm:mt-10 flex flex-col sm:flex-row items-center gap-3">
@@ -641,13 +788,13 @@ export function MorfCaseView({ onClose }: MorfCaseViewProps): React.ReactElement
               </div>
             </div>
 
-            {/* Two columns on phones, three on wider screens; the grid fits the viewport height. */}
-            <div className="morf-sticky-gallery relative z-10 w-[min(90vw,calc((100dvh-96px)*0.52))] md:w-[min(88vw,calc((100dvh-112px)*1.12),1280px)] flex items-center justify-center motion-reduce:opacity-25">
-              <div className="morf-sticky-grid grid grid-cols-2 md:grid-cols-3 gap-2 sm:gap-4 lg:gap-6 w-full items-center justify-items-center">
+            {/* Same three-column gallery layout as VRAK. */}
+            <div className="morf-sticky-gallery relative z-10 w-[96vw] sm:w-[94vw] lg:w-[92vw] max-w-[1280px] 2xl:max-w-[1400px] flex items-center justify-center motion-reduce:opacity-25">
+              <div className="morf-sticky-grid grid grid-cols-3 gap-3.5 sm:gap-6 lg:gap-8 w-full items-center justify-items-center will-change-transform">
                 {MORF_GALLERY_ITEMS.map((item, index) => (
                   <div
                     key={`morf-gallery-item-${index}`}
-                    className="morf-sticky-grid-item relative w-full aspect-[4/5] overflow-hidden bg-[var(--surface-dark)]"
+                    className="morf-sticky-grid-item relative w-full aspect-[4/5] overflow-hidden bg-[var(--surface-dark)] will-change-transform shadow-2xl"
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
