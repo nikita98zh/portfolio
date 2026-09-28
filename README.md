@@ -27,7 +27,8 @@ Personal portfolio of **Nikita Zhorov**, Product & Marketing Designer based in C
 │   ├── morf/                     # Morf case study interactive layout components
 │   ├── global-elastic-cursor.tsx # Custom reactive cursor
 │   ├── disciplines-scene.tsx     # Interactive disciplines showcase
-│   ├── typographic-project-scene.tsx # Typography & 3D showcase
+│   ├── design-brand-scene.tsx  # Scroll-led design/brand statement
+│   ├── floating-cases-scene.tsx # MORF and VRAK image previews
 │   ├── contact-scene.tsx         # Interactive contact scene
 │   └── intro-overlay.tsx         # Preloader & interactive entrance
 ├── lib/
@@ -55,5 +56,8 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 ### 3. Build for Production
 ```bash
 npm run build
-npm start
+node .next/standalone/server.js
 ```
+
+For a standalone server outside this repository, copy `public` to
+`.next/standalone/public` and `.next/static` to `.next/standalone/.next/static`.

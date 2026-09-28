@@ -59,17 +59,17 @@ export default function SpatialPortfolio() {
   // 1. Case modals & browser URL deep linking via stable physics ref bridge
   const physicsRef = React.useRef<{
     currentURef: { current: number };
-    scrollToMilestone: (m: number) => void;
+    scrollToU: (u: number) => void;
   } | null>(null);
 
   const getCurrentU = useCallback(() => physicsRef.current?.currentURef.current ?? 0, []);
-  const onScrollToMilestone = useCallback((m: number) => {
-    physicsRef.current?.scrollToMilestone(m);
+  const onScrollToU = useCallback((u: number) => {
+    physicsRef.current?.scrollToU(u);
   }, []);
 
   const modalRouting = useCaseModalRouting({
     getCurrentU,
-    onScrollToMilestone,
+    onScrollToU,
   });
 
   // 2. Master physics simulation governing cylinder surface & inputs
@@ -107,7 +107,7 @@ export default function SpatialPortfolio() {
       onTouchStart={physics.dragHandlers.onTouchStart}
       onTouchMove={physics.dragHandlers.onTouchMove}
       onTouchEnd={physics.dragHandlers.onTouchEnd}
-      className="relative w-screen h-screen overflow-hidden bg-[var(--bg)] text-[var(--text)] font-sans cursor-default select-none touch-none"
+      className="relative w-screen h-screen h-[100dvh] overflow-hidden bg-[var(--bg)] text-[var(--text)] font-sans cursor-default select-none touch-none"
     >
       {/* Intro Preloader & Curtain Handoff */}
       {!loaderReady && (
@@ -197,13 +197,9 @@ export default function SpatialPortfolio() {
                   fragmentsRotationMotion={physics.fragmentsRotationMotion}
                   isCurrent={isCurrent}
                   isPeeking={isPeeking}
-                  loaderReady={loaderReady}
                   isReducedMotion={isReducedMotion}
-                  isVrakCaseOpen={modalRouting.isVrakCaseOpen}
                   onOpenVrakCase={modalRouting.handleOpenVrakCase}
                   onOpenMorfCase={modalRouting.handleOpenMorfCase}
-                  vrakDockBounce={modalRouting.vrakDockBounce}
-                  morfDockBounce={modalRouting.morfDockBounce}
                   onHoverStateChange={handleHoverStateChange}
                   onClickPeeking={physics.handleClickPeeking}
                 />
