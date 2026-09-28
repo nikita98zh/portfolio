@@ -7,6 +7,7 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Flip } from 'gsap/Flip';
 import { isSoundEnabled, playTickSound, playReverseImplosionSound } from '@/lib/sound-fx';
+import { CaseBackButton } from '@/components/case-back-button';
 
 // Register GSAP plugins safely
 if (typeof window !== 'undefined') {
@@ -53,8 +54,9 @@ export function VrakCaseView({ onClose }: VrakCaseViewProps): React.ReactElement
     }
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const timer = setInterval(() => {
+      if (document.visibilityState !== 'visible') return;
       setSlideIndex((prev) => (prev + 1) % vrakSlides.length);
-    }, 1500);
+    }, 3200);
     return () => clearInterval(timer);
   }, []);
 
@@ -202,7 +204,7 @@ export function VrakCaseView({ onClose }: VrakCaseViewProps): React.ReactElement
 
       // 5. POSTER & VISUAL FRAMES: CONTAINED -> PRESSURE (COMPRESSION) -> RELEASE (UNMASK)
       const visualFrames = gsap.utils.toArray<HTMLElement>('.vrak-visual-frame');
-      visualFrames.forEach((frame) => {
+      visualFrames.forEach((frame, index) => {
         const img = frame.querySelector('img');
         if (img) {
           gsap.fromTo(
@@ -223,26 +225,29 @@ export function VrakCaseView({ onClose }: VrakCaseViewProps): React.ReactElement
           );
         }
 
-        gsap.fromTo(
-          frame,
-          {
-            clipPath: 'polygon(0% 8%, 100% 0%, 100% 92%, 0% 100%)',
-            opacity: 0.85,
-          },
-          {
-            clipPath: 'polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)',
-            opacity: 1,
-            duration: 1,
-            ease: 'power2.out',
-            scrollTrigger: {
-              trigger: frame,
-              scroller: containerRef.current,
-              start: 'top 85%',
-              end: 'top 30%',
-              scrub: 0.8,
+        // Reserve the skewed unmask for the opening and closing campaign visuals.
+        if (index === 0 || index === visualFrames.length - 1) {
+          gsap.fromTo(
+            frame,
+            {
+              clipPath: 'polygon(0% 8%, 100% 0%, 100% 92%, 0% 100%)',
+              opacity: 0.85,
             },
-          }
-        );
+            {
+              clipPath: 'polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)',
+              opacity: 1,
+              duration: 1,
+              ease: 'power2.out',
+              scrollTrigger: {
+                trigger: frame,
+                scroller: containerRef.current,
+                start: 'top 85%',
+                end: 'top 30%',
+                scrub: 0.8,
+              },
+            }
+          );
+        }
       });
 
       // 6. TYPEFACE SYSTEM CARDS (PRESSURE REVEAL)
@@ -475,22 +480,7 @@ export function VrakCaseView({ onClose }: VrakCaseViewProps): React.ReactElement
       className="fixed inset-0 z-50 w-full h-full overflow-y-auto overflow-x-hidden bg-[var(--bg)] text-[var(--text)] font-sans selection:bg-[var(--text)] selection:text-[var(--bg)]"
     >
       {/* Minimalist Floating Back Trigger (Flies away on scroll down, reappears on scroll up) */}
-      <motion.button
-        type="button"
-        onClick={handleBack}
-        initial={{ opacity: 1, y: 0 }}
-        animate={{
-          opacity: isNavVisible ? 1 : 0,
-          y: isNavVisible ? 0 : -32,
-          pointerEvents: isNavVisible ? 'auto' : 'none',
-        }}
-        transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
-        className="fixed bottom-[max(20px,env(safe-area-inset-bottom))] left-5 lg:bottom-auto lg:top-8 lg:left-8 z-50 flex min-h-11 items-center gap-2.5 bg-[var(--bg)] px-3 text-[var(--text)] font-manrope font-semibold text-sm tracking-[0.06em] uppercase hover:opacity-50 transition-opacity cursor-pointer group select-none"
-        aria-label="Back to overview"
-      >
-        <span className="text-sm transition-transform duration-200 group-hover:-translate-x-1">←</span>
-        <span>BACK</span>
-      </motion.button>
+      <CaseBackButton variant="floating" onClick={handleBack} visible={isNavVisible} />
 
       <main className="flex flex-col items-center relative w-full bg-[var(--bg)]">
         {/* =========================================================================
@@ -884,14 +874,7 @@ export function VrakCaseView({ onClose }: VrakCaseViewProps): React.ReactElement
                 THANKS FOR WATCHING
               </h2>
               <div className="vrak-sticky-cta mt-6 sm:mt-10 flex flex-col sm:flex-row items-center gap-3">
-                <button
-                  type="button"
-                  onClick={handleBack}
-                  className="group inline-flex items-center gap-2.5 text-[var(--text)] font-manrope font-bold text-xs sm:text-sm md:text-base uppercase tracking-[0.2em] hover:opacity-50 transition-opacity cursor-pointer pointer-events-auto"
-                >
-                  <span className="text-sm transition-transform duration-200 group-hover:-translate-x-1">←</span>
-                  <span>BACK TO OVERVIEW</span>
-                </button>
+                <CaseBackButton variant="finale" onClick={handleBack} />
               </div>
             </div>
 

@@ -30,13 +30,14 @@ interface CaseImageProps {
   className: string;
   rotate: MotionValue<number>;
   drift: MotionValue<string>;
+  imageShift: MotionValue<string>;
   isActive: boolean;
   isReducedMotion: boolean;
   onOpen: () => void;
   onHoverStateChange: (state: string | null) => void;
 }
 
-function CaseImage({ title, imageSrc, className, rotate, drift, isActive, isReducedMotion, onOpen, onHoverStateChange }: CaseImageProps) {
+function CaseImage({ title, imageSrc, className, rotate, drift, imageShift, isActive, isReducedMotion, onOpen, onHoverStateChange }: CaseImageProps) {
   const [hovered, setHovered] = useState(false);
 
   return (
@@ -69,7 +70,8 @@ function CaseImage({ title, imageSrc, className, rotate, drift, isActive, isRedu
         alt=""
         draggable={false}
         className="block w-full h-full object-cover pointer-events-none"
-        animate={{ filter: hovered ? 'blur(5px) brightness(0.94)' : 'blur(0px) brightness(1)', scale: hovered ? 1.025 : 1 }}
+        style={{ y: imageShift }}
+        animate={{ scale: hovered ? 1.095 : 1.065 }}
         transition={{ duration: isReducedMotion ? 0.1 : 0.65, ease: [0.16, 1, 0.3, 1] }}
       />
       <motion.span
@@ -89,10 +91,12 @@ export function FloatingCasesScene({ milestone, uMotion, isActive, isReducedMoti
   const isMobile = useSyncExternalStore(subscribeMobile, getMobileSnapshot, () => false);
   const progress = useTransform(uMotion, (u) => getSceneDwellProgress(milestone, u));
   const stageY = useTransform(progress, (p) => `${-(isMobile ? 89 : 130) * p}dvh`);
-  const morfRotate = useTransform(progress, [0, 1], isReducedMotion ? [0, 0] : [-2.8, 1.4]);
-  const vrakRotate = useTransform(progress, [0, 1], isReducedMotion ? [0, 0] : [2.2, -1.8]);
-  const morfDrift = useTransform(progress, (p) => isReducedMotion ? '0dvh' : `${-2.5 * Math.sin(p * Math.PI)}dvh`);
-  const vrakDrift = useTransform(progress, (p) => isReducedMotion ? '0dvh' : `${2.8 * Math.sin(p * Math.PI)}dvh`);
+  const morfRotate = useTransform(progress, [0, 1], isReducedMotion ? [0, 0] : [-5.2, 2.8]);
+  const vrakRotate = useTransform(progress, [0, 1], isReducedMotion ? [0, 0] : [4.8, -3.5]);
+  const morfDrift = useTransform(progress, (p) => isReducedMotion ? '0dvh' : `${-1.2 * Math.sin(p * Math.PI)}dvh`);
+  const vrakDrift = useTransform(progress, (p) => isReducedMotion ? '0dvh' : `${1.2 * Math.sin(p * Math.PI)}dvh`);
+  const morfImageShift = useTransform(progress, (p) => isReducedMotion ? '0%' : `${(p - 0.5) * 4}%`);
+  const vrakImageShift = useTransform(progress, (p) => isReducedMotion ? '0%' : `${(0.5 - p) * 4}%`);
 
   return (
     <section aria-label="Selected projects" className="relative w-full h-full overflow-hidden bg-[var(--bg)]">
@@ -100,9 +104,10 @@ export function FloatingCasesScene({ milestone, uMotion, isActive, isReducedMoti
         <CaseImage
           title="MORF"
           imageSrc="/assets/morf_preview_scrolldisplay.webp"
-          className="top-[20dvh] md:top-[17dvh] left-[12vw] md:left-[25vw] w-[78vw] md:w-[55vw] max-w-[1000px] aspect-[2804/2244]"
+          className="top-[20dvh] md:top-[17dvh] left-[12vw] md:left-[38vw] w-[78vw] md:w-[48vw] max-w-[850px] aspect-[2804/2244]"
           rotate={morfRotate}
           drift={morfDrift}
+          imageShift={morfImageShift}
           isActive={isActive}
           isReducedMotion={isReducedMotion}
           onOpen={onOpenMorf}
@@ -111,9 +116,10 @@ export function FloatingCasesScene({ milestone, uMotion, isActive, isReducedMoti
         <CaseImage
           title="VRAK"
           imageSrc="/assets/vrak/hand_scrolldisplay.webp"
-          className="top-[118dvh] md:top-[155dvh] left-[12vw] md:left-[19vw] w-[80vw] md:w-[65vw] max-w-[1150px] aspect-[16/9]"
+          className="top-[118dvh] md:top-[155dvh] left-[12vw] md:left-[11vw] w-[80vw] md:w-[54vw] max-w-[950px] aspect-[16/9]"
           rotate={vrakRotate}
           drift={vrakDrift}
+          imageShift={vrakImageShift}
           isActive={isActive}
           isReducedMotion={isReducedMotion}
           onOpen={onOpenVrak}

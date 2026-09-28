@@ -32,7 +32,7 @@ export function MobilePortfolio() {
         <div className="relative mx-auto w-full max-w-[680px] aspect-[1/1.03] overflow-hidden bg-[var(--bg)]">
           <Image src="/assets/portrait-crop.webp" alt="Portrait of Nikita Zhorov" fill priority sizes="(max-width: 640px) calc(100vw - 40px), 680px" className="object-contain object-center" />
         </div>
-        <p className="mobile-reveal max-w-[24ch] ml-auto pt-8 pb-20 text-[clamp(25px,6vw,43px)] leading-[1.12] tracking-[-0.04em] font-extrabold uppercase text-pretty">
+        <p className="max-w-[24ch] ml-auto pt-8 pb-20 text-[clamp(25px,6vw,43px)] leading-[1.12] tracking-[-0.04em] font-extrabold uppercase text-pretty">
           The same idea should live through identity and campaign.
         </p>
       </section>
@@ -85,8 +85,7 @@ export function MobilePortfolio() {
         <h2 className="mb-8 text-[clamp(58px,16vw,116px)] leading-[0.9] tracking-[-0.065em] font-extrabold uppercase">LET’S<br />TALK.</h2>
         <a href="mailto:nikita98zh@gmail.com" className="inline-block w-fit max-w-full break-all text-[clamp(19px,5.5vw,32px)] font-bold tracking-[-0.045em] underline underline-offset-4">nikita98zh@gmail.com</a>
         <nav aria-label="Professional profiles" className="mt-10 flex flex-wrap gap-x-10 gap-y-4 text-sm font-semibold">
-          <a className="min-h-11 inline-flex items-center" href="https://www.behance.net/nikozhorov" target="_blank" rel="noopener noreferrer">BEHANCE ↗</a>
-          <a className="min-h-11 inline-flex items-center" href="https://www.linkedin.com/in/nikitazhorov" target="_blank" rel="noopener noreferrer">LINKEDIN ↗</a>
+          <a className="min-h-11 inline-flex items-center" href="https://www.linkedin.com/in/nzhorov/" target="_blank" rel="noopener noreferrer">LINKEDIN ↗</a>
         </nav>
       </section>
     </main>

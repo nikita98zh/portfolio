@@ -33,11 +33,19 @@ export function DesignBrandScene({ milestone, uMotion, isReducedMotion }: Design
   const isMobile = useSyncExternalStore(subscribeMobile, getMobileSnapshot, () => false);
   const progress = useTransform(uMotion, (u) => getSceneDwellProgress(milestone, u));
 
-  // Deliberate visual holds: the input coordinate keeps moving while the
-  // artwork stays still. The middle interval travels as one continuous sheet.
+  // Each paragraph pauses in the reading zone before the stage moves on.
   const stageY = useTransform(progress, (p) => {
     const travel = isMobile ? 100 : 140;
-    return `${-travel * range(p, 0.31, 0.76)}dvh`;
+    const stops = isMobile ? [0, 16, 48, 80, 100] : [0, 22, 70, 112, 140];
+    const movement = p < 0.31 ? stops[0]
+      : p < 0.37 ? stops[0] + (stops[1] - stops[0]) * range(p, 0.31, 0.37)
+      : p < 0.49 ? stops[1]
+      : p < 0.55 ? stops[1] + (stops[2] - stops[1]) * range(p, 0.49, 0.55)
+      : p < 0.64 ? stops[2]
+      : p < 0.69 ? stops[2] + (stops[3] - stops[2]) * range(p, 0.64, 0.69)
+      : p < 0.77 ? stops[3]
+      : stops[3] + (travel - stops[3]) * range(p, 0.77, 0.86);
+    return `${-movement}dvh`;
   });
   const topBar = useTransform(progress, (p) => range(p, 0.02, 0.19));
   const topTitle = useTransform(progress, (p) => `inset(0 ${100 * (1 - range(p, 0.20, 0.31))}% 0 0)`);
@@ -45,17 +53,20 @@ export function DesignBrandScene({ milestone, uMotion, isReducedMotion }: Design
   const bottomTitle = useTransform(progress, (p) => `inset(0 ${100 * (1 - range(p, 0.89, 0.99))}% 0 0)`);
   const lineDraw = useTransform(progress, (p) => isReducedMotion ? Number(p >= 0.32) : range(p, 0.32, 0.76));
 
-  const firstOpacity = useTransform(progress, (p) => isReducedMotion ? Number(p >= 0.40) : range(p, 0.40, 0.46));
-  const secondOpacity = useTransform(progress, (p) => isReducedMotion ? Number(p >= 0.54) : range(p, 0.54, 0.60));
-  const thirdOpacity = useTransform(progress, (p) => isReducedMotion ? Number(p >= 0.67) : range(p, 0.67, 0.73));
-  const firstY = useTransform(progress, (p) => isReducedMotion ? 0 : 16 * (1 - range(p, 0.40, 0.46)));
-  const secondY = useTransform(progress, (p) => isReducedMotion ? 0 : 16 * (1 - range(p, 0.54, 0.60)));
-  const thirdY = useTransform(progress, (p) => isReducedMotion ? 0 : 16 * (1 - range(p, 0.67, 0.73)));
+  const firstOpacity = useTransform(progress, (p) => isReducedMotion ? Number(p >= 0.34) : range(p, 0.34, 0.39));
+  const secondOpacity = useTransform(progress, (p) => isReducedMotion ? Number(p >= 0.52) : range(p, 0.52, 0.57));
+  const thirdOpacity = useTransform(progress, (p) => isReducedMotion ? Number(p >= 0.66) : range(p, 0.66, 0.71));
+  const firstY = useTransform(progress, (p) => isReducedMotion ? 0 : 20 * (1 - range(p, 0.34, 0.40)));
+  const secondY = useTransform(progress, (p) => isReducedMotion ? 0 : 20 * (1 - range(p, 0.52, 0.58)));
+  const thirdY = useTransform(progress, (p) => isReducedMotion ? 0 : 20 * (1 - range(p, 0.66, 0.72)));
+  const firstClip = useTransform(progress, (p) => isReducedMotion ? 'none' : `inset(${100 * (1 - range(p, 0.34, 0.40))}% 0 0 0)`);
+  const secondClip = useTransform(progress, (p) => isReducedMotion ? 'none' : `inset(${100 * (1 - range(p, 0.52, 0.58))}% 0 0 0)`);
+  const thirdClip = useTransform(progress, (p) => isReducedMotion ? 'none' : `inset(${100 * (1 - range(p, 0.66, 0.72))}% 0 0 0)`);
 
   return (
     <section aria-label="Design and brand approach" className="relative w-full h-full overflow-hidden bg-[var(--bg)] select-text">
       <motion.div style={{ y: stageY }} className="absolute inset-x-0 top-0 h-[210dvh] md:h-[240dvh]">
-        <div className="absolute top-[18dvh] left-0 w-[82vw] md:w-[74vw] h-[11dvh] min-h-[76px] max-h-[128px]">
+        <div className="absolute top-[18dvh] left-0 w-[82vw] md:w-[74vw] h-[max(15dvh,9vw)] min-h-[106px] max-h-[178px]">
           <motion.div style={{ scaleX: topBar, transformOrigin: 'left center' }} className="absolute inset-0 bg-[var(--text)]" />
           <motion.h2 style={{ clipPath: topTitle }} className="relative h-full flex items-center justify-end pr-[5vw] font-manrope font-extrabold text-[var(--bg)] text-[clamp(48px,9vw,158px)] tracking-[-0.055em] leading-none uppercase whitespace-nowrap">
             DESIGN
@@ -81,17 +92,17 @@ export function DesignBrandScene({ milestone, uMotion, isReducedMotion }: Design
           />
         </svg>
 
-        <motion.p style={{ opacity: firstOpacity, y: firstY }} className="absolute top-[56dvh] md:top-[66dvh] left-[7vw] w-[72vw] md:w-[28vw] max-w-[430px] font-manrope font-light text-[clamp(15px,1.22vw,20px)] leading-[1.6] text-[var(--text)]">
+        <motion.p style={{ opacity: firstOpacity, y: firstY, clipPath: firstClip }} className="absolute top-[56dvh] md:top-[66dvh] left-[7vw] w-[72vw] md:w-[28vw] max-w-[430px] font-manrope font-light text-[clamp(15px,1.22vw,20px)] leading-[1.6] text-[var(--text)]">
           {COPY[0]}
         </motion.p>
-        <motion.p style={{ opacity: secondOpacity, y: secondY }} className="absolute top-[87dvh] md:top-[110dvh] left-[7vw] md:left-auto md:right-[6vw] w-[72vw] md:w-[28vw] max-w-[430px] font-manrope font-light text-[clamp(15px,1.22vw,20px)] leading-[1.6] text-[var(--text)]">
+        <motion.p style={{ opacity: secondOpacity, y: secondY, clipPath: secondClip }} className="absolute top-[87dvh] md:top-[110dvh] left-[7vw] md:left-auto md:right-[6vw] w-[72vw] md:w-[28vw] max-w-[430px] font-manrope font-light text-[clamp(15px,1.22vw,20px)] leading-[1.6] text-[var(--text)]">
           {COPY[1]}
         </motion.p>
-        <motion.p style={{ opacity: thirdOpacity, y: thirdY }} className="absolute top-[118dvh] md:top-[153dvh] left-[7vw] w-[72vw] md:w-[28vw] max-w-[430px] font-manrope font-light text-[clamp(15px,1.22vw,20px)] leading-[1.6] text-[var(--text)]">
+        <motion.p style={{ opacity: thirdOpacity, y: thirdY, clipPath: thirdClip }} className="absolute top-[118dvh] md:top-[153dvh] left-[7vw] w-[72vw] md:w-[28vw] max-w-[430px] font-manrope font-light text-[clamp(15px,1.22vw,20px)] leading-[1.6] text-[var(--text)]">
           {COPY[2]}
         </motion.p>
 
-        <div className="absolute top-[145dvh] md:top-[190dvh] right-0 w-[82vw] md:w-[74vw] h-[11dvh] min-h-[76px] max-h-[128px]">
+        <div className="absolute top-[145dvh] md:top-[190dvh] right-0 w-[82vw] md:w-[74vw] h-[max(15dvh,9vw)] min-h-[106px] max-h-[178px]">
           <motion.div style={{ scaleX: bottomBar, transformOrigin: 'right center' }} className="absolute inset-0 bg-[var(--text)]" />
           <motion.h2 style={{ clipPath: bottomTitle }} className="relative h-full flex items-center justify-start pl-[5vw] font-manrope font-extrabold text-[var(--bg)] text-[clamp(48px,9vw,158px)] tracking-[-0.055em] leading-none uppercase whitespace-nowrap">
             BRAND

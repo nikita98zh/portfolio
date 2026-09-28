@@ -2,11 +2,11 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { motion } from 'motion/react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { isSoundEnabled, playTickSound, playReverseImplosionSound } from '@/lib/sound-fx';
 import { ViewportVideo } from '@/components/viewport-video';
+import { CaseBackButton } from '@/components/case-back-button';
 
 // Register GSAP plugins safely on client side
 if (typeof window !== 'undefined') {
@@ -178,7 +178,23 @@ export function MorfCaseView({ onClose }: MorfCaseViewProps): React.ReactElement
           reveal('.morf-design-copy', 28);
           reveal('.morf-design-image', 18);
           reveal('.morf-editorial-statement', 32);
-          reveal('.morf-digital-screen', 30);
+          const digitalScreens = container.querySelectorAll<HTMLElement>('.morf-digital-screen');
+          if (digitalScreens.length) {
+            gsap.from(digitalScreens, {
+              y: desktop ? 28 : 14,
+              opacity: 0,
+              clipPath: 'inset(5% 0 0 0)',
+              duration: desktop ? 1 : 0.7,
+              stagger: desktop ? 0.16 : 0.08,
+              ease: 'power2.out',
+              scrollTrigger: {
+                trigger: digitalScreens[0],
+                scroller: container,
+                start: 'top 88%',
+                once: true,
+              },
+            });
+          }
           reveal('.morf-coherence-copy', 28);
           reveal('.morf-mobile-copy', 24);
           if (!desktop) reveal('.morf-mobile-screen', 16);
@@ -467,22 +483,7 @@ export function MorfCaseView({ onClose }: MorfCaseViewProps): React.ReactElement
       className="fixed inset-0 z-50 w-full h-full overflow-y-auto overflow-x-hidden bg-[var(--bg)] text-[var(--text)] font-manrope selection:bg-[var(--text)] selection:text-[var(--bg)]"
     >
       {/* Minimalist Floating Back Trigger (Flies away on scroll down, reappears on scroll up) */}
-      <motion.button
-        type="button"
-        onClick={handleBack}
-        initial={{ opacity: 1, y: 0 }}
-        animate={{
-          opacity: isNavVisible ? 1 : 0,
-          y: isNavVisible ? 0 : -32,
-          pointerEvents: isNavVisible ? 'auto' : 'none',
-        }}
-        transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
-        className="fixed bottom-[max(20px,env(safe-area-inset-bottom))] left-5 lg:bottom-auto lg:top-8 lg:left-8 z-50 flex min-h-11 items-center gap-2.5 bg-[var(--bg)] px-3 text-[var(--text)] font-manrope font-semibold text-sm tracking-[0.06em] uppercase hover:opacity-50 transition-opacity cursor-pointer group select-none"
-        aria-label="Back to overview"
-      >
-        <span className="text-sm transition-transform duration-200 group-hover:-translate-x-1">←</span>
-        <span>BACK</span>
-      </motion.button>
+      <CaseBackButton variant="floating" onClick={handleBack} visible={isNavVisible} />
 
       <main className="flex flex-col items-center relative w-full bg-[var(--bg)]">
         {/* =========================================================================
@@ -768,14 +769,7 @@ export function MorfCaseView({ onClose }: MorfCaseViewProps): React.ReactElement
                 THANKS FOR WATCHING
               </h2>
               <div className="morf-sticky-cta mt-6 sm:mt-10 flex flex-col sm:flex-row items-center gap-3">
-                <button
-                  type="button"
-                  onClick={handleBack}
-                  className="group inline-flex items-center gap-2.5 text-[var(--text)] font-manrope font-bold text-xs sm:text-sm md:text-base uppercase tracking-[0.2em] hover:opacity-50 transition-opacity cursor-pointer pointer-events-auto"
-                >
-                  <span className="text-sm transition-transform duration-200 group-hover:-translate-x-1">←</span>
-                  <span>BACK TO OVERVIEW</span>
-                </button>
+                <CaseBackButton variant="finale" onClick={handleBack} />
               </div>
             </div>
 

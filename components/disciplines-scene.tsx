@@ -68,21 +68,33 @@ export const DisciplinesScene = memo(function DisciplinesScene({
 }: DisciplinesSceneProps) {
   const [activeCategory, setActiveCategory] = useState<DirectionId>('uiux');
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [previousIndex, setPreviousIndex] = useState<number | null>(null);
   const [canParallax, setCanParallax] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const rafRef = useRef<number | null>(null);
+  const transitionTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Pre-load all 15 images on mount for immediate zero-latency presentation
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    DIRECTIONS.forEach((item) => {
-      item.images.forEach((imgObj) => {
-        const img = new window.Image();
-        img.src = imgObj.src;
-      });
-    });
+  const advanceImage = useCallback(() => {
+    setPreviousIndex(currentIndex);
+    setCurrentIndex((currentIndex + 1) % 5);
+    if (transitionTimerRef.current) clearTimeout(transitionTimerRef.current);
+    transitionTimerRef.current = setTimeout(() => setPreviousIndex(null), 700);
+  }, [currentIndex]);
+
+  useEffect(() => () => {
+    if (transitionTimerRef.current) clearTimeout(transitionTimerRef.current);
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
   }, []);
+
+  // Keep the next image ready without downloading every category at mount.
+  useEffect(() => {
+    if (!isActive || typeof window === 'undefined') return;
+    const images = DIRECTIONS.find((item) => item.id === activeCategory)?.images;
+    if (!images) return;
+    const next = new window.Image();
+    next.src = images[(currentIndex + 1) % images.length].src;
+  }, [isActive, activeCategory, currentIndex]);
 
   // Check for fine pointer (desktop mouse)
   useEffect(() => {
@@ -92,16 +104,17 @@ export const DisciplinesScene = memo(function DisciplinesScene({
     }
   }, []);
 
-  // Rock-solid 0.8s (800ms) auto-cycling interval
+  // Give each work enough time to be seen; pause when the scene is inactive.
   useEffect(() => {
-    if (isReducedMotion) return;
+    if (isReducedMotion || !isActive) return;
 
     const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % 5);
-    }, 800);
+      if (document.visibilityState !== 'visible') return;
+      advanceImage();
+    }, 2600);
 
     return () => clearInterval(interval);
-  }, [isReducedMotion, activeCategory]);
+  }, [isReducedMotion, isActive, activeCategory, advanceImage]);
 
   // Desktop Pointer Parallax: smooth, isolated, GPU-only spring
   const pointerX = useMotionValue(0);
@@ -144,6 +157,8 @@ export const DisciplinesScene = memo(function DisciplinesScene({
       if (activeCategory !== id) {
         setActiveCategory(id);
         setCurrentIndex(0);
+        setPreviousIndex(null);
+        if (transitionTimerRef.current) clearTimeout(transitionTimerRef.current);
         playTickSound(144, 0.02);
       }
       onHoverStateChange?.('action');
@@ -153,9 +168,9 @@ export const DisciplinesScene = memo(function DisciplinesScene({
 
   // Manual click on visual stage immediately advances to next slide
   const handleStageClick = useCallback(() => {
-    setCurrentIndex((prev) => (prev + 1) % 5);
+    advanceImage();
     playTickSound(156, 0.02);
-  }, []);
+  }, [advanceImage]);
 
   const activeImages = DIRECTIONS.find((d) => d.id === activeCategory)?.images || [];
 
@@ -196,11 +211,21 @@ export const DisciplinesScene = memo(function DisciplinesScene({
         <div
           id="disciplines-media-stage"
           onClick={handleStageClick}
-          className="relative w-full h-full pointer-events-auto cursor-pointer"
+          role="button"
+          tabIndex={isActive ? 0 : -1}
+          aria-label={`Show next ${activeCategory.toUpperCase()} work`}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+              event.preventDefault();
+              handleStageClick();
+            }
+          }}
+          className="relative w-full h-full pointer-events-auto cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--text)]"
         >
           {/* Active Category 5 Works */}
           {activeImages.map((imgItem, imgIdx) => {
             const isImageActive = imgIdx === currentIndex;
+            const isImageLeaving = imgIdx === previousIndex;
 
             return (
               <div
@@ -208,13 +233,13 @@ export const DisciplinesScene = memo(function DisciplinesScene({
                 id={`media-plate-${activeCategory}-${imgIdx}`}
                 className="absolute inset-0 w-full h-full flex items-center justify-center pointer-events-none"
                 style={{
-                  opacity: isImageActive ? 1 : 0,
+                  opacity: isImageActive || isImageLeaving ? 1 : 0,
+                  clipPath: isImageActive || isImageLeaving ? 'inset(0 0 0 0)' : 'inset(0 0 100% 0)',
                   transform: isImageActive ? 'scale(1)' : 'scale(1.018)',
                   transition: isReducedMotion
-                    ? 'opacity 120ms ease'
-                    : 'opacity 240ms cubic-bezier(0.16, 1, 0.3, 1), transform 320ms cubic-bezier(0.16, 1, 0.3, 1)',
-                  willChange: 'opacity, transform',
-                  zIndex: isImageActive ? 5 : 1,
+                    ? 'none'
+                    : 'opacity 150ms ease, clip-path 650ms cubic-bezier(0.16, 1, 0.3, 1), transform 650ms cubic-bezier(0.16, 1, 0.3, 1)',
+                  zIndex: isImageActive ? 5 : isImageLeaving ? 4 : 1,
                 }}
               >
                 {/* 
@@ -234,7 +259,7 @@ export const DisciplinesScene = memo(function DisciplinesScene({
                     src={imgItem.src}
                     alt={imgItem.alt}
                     draggable={false}
-                    loading={imgIdx === 0 ? 'eager' : 'lazy'}
+                    loading={isImageActive ? 'eager' : 'lazy'}
                     className="w-full h-full object-contain object-center select-none pointer-events-none block"
                   />
                   {/* Subtle analog film grain matching hero portrait strictly over the image */}

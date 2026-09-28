@@ -62,13 +62,13 @@ export const ManifestoTransitionScene = memo(function ManifestoTransitionScene({
   const easedSlide = isReducedMotion ? 0 : slideT * slideT * (3 - 2 * slideT);
   const photoTranslateX = `${-easedSlide * 48}vw`;
 
-  // Statement 1: fully prominent at rest, steps back after photo completes slide
-  const stmt1T = Math.max(0, Math.min(1, (progress - 0.42) / 0.28));
+  // Give the first thought time to land before the second one takes focus.
+  const stmt1T = Math.max(0, Math.min(1, (progress - 0.64) / 0.18));
   const stmt1Opacity = isReducedMotion ? 1 : 1 - stmt1T * 0.88;
   const stmt1Y = isReducedMotion ? 0 : -stmt1T * 18;
 
-  // Statement 2: revealed on the right side as photo clears the right column
-  const stmt2T = Math.max(0, Math.min(1, (progress - 0.22) / 0.44));
+  // The portrait must clear the right column before this line becomes readable.
+  const stmt2T = Math.max(0, Math.min(1, (progress - 0.47) / 0.20));
   const stmt2Opacity = stmt2T;
   const stmt2Y = isReducedMotion ? 0 : (1 - stmt2T) * 24;
 
