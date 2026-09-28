@@ -3,12 +3,8 @@
 import { useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-
-const disciplines = [
-  { title: 'UI / UX', image: '/assets/work_uiux.webp' },
-  { title: 'BRAND', image: '/assets/work_brand.webp' },
-  { title: 'MARKETING', image: '/assets/work_marketing.webp' },
-];
+import { disciplineWorks } from '@/lib/discipline-works';
+import { MobileDisciplineGallery } from '@/components/mobile-discipline-gallery';
 
 export function MobilePortfolio() {
   useEffect(() => {
@@ -52,13 +48,8 @@ export function MobilePortfolio() {
       <section id="disciplines" aria-labelledby="disciplines-heading" className="px-5 py-20 sm:px-10 sm:py-28">
         <h2 id="disciplines-heading" className="sr-only">What I do</h2>
         <div className="space-y-14">
-          {disciplines.map(({ title, image }, index) => (
-            <div key={title} className="relative">
-              <h3 className="relative z-10 mb-4 text-[clamp(46px,14vw,86px)] leading-[0.95] tracking-[-0.065em] font-extrabold">{title}</h3>
-              <div className={`mobile-reveal w-[82%] max-w-[680px] overflow-hidden ${index === 1 ? 'ml-auto' : ''}`}>
-                <Image src={image} alt={`${title} design work by Nikita Zhorov`} width={1122} height={1402} sizes="(max-width: 640px) 82vw, 680px" className="h-auto w-full object-cover" loading="lazy" />
-              </div>
-            </div>
+          {disciplineWorks.map((item, index) => (
+            <MobileDisciplineGallery key={item.id} item={item} alignRight={index === 1} />
           ))}
         </div>
       </section>
