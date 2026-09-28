@@ -3,8 +3,9 @@
 import React, { useState, memo } from 'react';
 import { motion, useMotionValue, useTransform, useMotionValueEvent } from 'motion/react';
 import { ManifestoTransitionScene } from '@/components/manifesto-transition-scene';
+import { DesignBrandScene } from '@/components/design-brand-scene';
 import { DisciplinesScene } from '@/components/disciplines-scene';
-import { TypographicProjectScene } from '@/components/typographic-project-scene';
+import { FloatingCasesScene } from '@/components/floating-cases-scene';
 import { ContactScene } from '@/components/contact-scene';
 import {
   SCENE_CONFIGS,
@@ -20,13 +21,9 @@ export interface CylinderPanelProps {
   fragmentsRotationMotion: ReturnType<typeof useMotionValue<number>>;
   isCurrent: boolean;
   isPeeking: boolean;
-  loaderReady: boolean;
   isReducedMotion: boolean;
-  isVrakCaseOpen?: boolean;
   onOpenVrakCase: (e?: React.MouseEvent) => void;
   onOpenMorfCase: (e?: React.MouseEvent) => void;
-  vrakDockBounce: boolean;
-  morfDockBounce: boolean;
   onHoverStateChange: (state: string | null) => void;
   onClickPeeking: (milestone: number) => void;
 }
@@ -39,13 +36,9 @@ export const CylinderPanel = memo(function CylinderPanel({
   fragmentsRotationMotion,
   isCurrent,
   isPeeking,
-  loaderReady,
   isReducedMotion,
-  isVrakCaseOpen,
   onOpenVrakCase,
   onOpenMorfCase,
-  vrakDockBounce,
-  morfDockBounce,
   onHoverStateChange,
   onClickPeeking,
 }: CylinderPanelProps) {
@@ -71,20 +64,6 @@ export const CylinderPanel = memo(function CylinderPanel({
       }
       return prev;
     });
-  });
-
-  // Track if VRAK is in the central stable resting state of the cylinder drum (dist < 0.16)
-  const [isStableCenter, setIsStableCenter] = useState(() => {
-    if (scene.id !== 'vrak') return false;
-    const initialPos = cylinderPosMotion.get();
-    return Math.abs(milestone - initialPos) < 0.16;
-  });
-
-  useMotionValueEvent(cylinderPosMotion, 'change', (pos: number) => {
-    if (scene.id !== 'vrak') return;
-    const dist = Math.abs(milestone - pos);
-    const stable = dist < 0.16;
-    setIsStableCenter((prev) => (prev !== stable ? stable : prev));
   });
 
   // GPU 3D Cylinder geometry transforms
@@ -215,7 +194,7 @@ export const CylinderPanel = memo(function CylinderPanel({
       className={`absolute inset-0 w-full h-full flex flex-col justify-center items-center bg-[var(--bg)] ${
         isPeeking ? 'cursor-pointer select-none' : ''
       } ${
-        scene.id === 'morf' || scene.id === 'vrak' || scene.id === 'disciplines'
+        scene.id === 'disciplines'
           ? 'px-0 py-0 overflow-visible'
           : 'px-0 py-0 overflow-hidden'
       }`}
@@ -229,6 +208,10 @@ export const CylinderPanel = memo(function CylinderPanel({
         />
       )}
 
+      {scene.id === 'design-brand' && (
+        <DesignBrandScene milestone={milestone} uMotion={uMotion} isReducedMotion={isReducedMotion} />
+      )}
+
       {/* FRAGMENT 1: DISCIPLINES SCENE */}
       {scene.id === 'disciplines' && (
         <DisciplinesScene
@@ -238,35 +221,16 @@ export const CylinderPanel = memo(function CylinderPanel({
         />
       )}
 
-      {/* FRAGMENT 2: MORF */}
-      {scene.id === 'morf' && (
-        <TypographicProjectScene
-          projectId="morf"
-          title="MORF"
-          imageSrc="/assets/morf_preview.png"
-          imageAlt="MORF Canine Architectural Fashion"
-          href="/work/morf"
+      {/* Both projects travel through one continuous editorial scene. */}
+      {scene.id === 'cases' && (
+        <FloatingCasesScene
+          milestone={milestone}
+          uMotion={uMotion}
           isActive={isCurrent}
-          isPeeking={isPeeking}
-          onOpenCase={onOpenMorfCase}
+          isReducedMotion={isReducedMotion}
+          onOpenMorf={onOpenMorfCase}
+          onOpenVrak={onOpenVrakCase}
           onHoverStateChange={onHoverStateChange}
-          bounceEffect={morfDockBounce}
-        />
-      )}
-
-      {/* FRAGMENT 3: VRAK */}
-      {scene.id === 'vrak' && (
-        <TypographicProjectScene
-          projectId="vrak"
-          title="VRAK"
-          imageSrc="/assets/vrak/hand.png"
-          imageAlt="VRAK Energy Beverage — Brand in Hand"
-          href="/work/vrak"
-          isActive={isCurrent}
-          isPeeking={isPeeking}
-          onOpenCase={onOpenVrakCase}
-          onHoverStateChange={onHoverStateChange}
-          bounceEffect={vrakDockBounce}
         />
       )}
 

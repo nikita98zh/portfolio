@@ -1,8 +1,7 @@
-import type {Metadata} from 'next';
-import {Manrope, Anybody, Instrument_Serif, JetBrains_Mono} from 'next/font/google';
-import './globals.css'; // Global styles
-import {GlobalElasticCursor} from '@/components/global-elastic-cursor';
-import {ThirdPartyExtensionGuard} from '@/components/third-party-extension-guard';
+import type { Metadata, Viewport } from 'next';
+import { Manrope, Anybody, Onest } from 'next/font/google';
+import './globals.css';
+import { GlobalElasticCursor } from '@/components/global-elastic-cursor';
 
 const manrope = Manrope({
   subsets: ['latin', 'cyrillic'],
@@ -18,111 +17,49 @@ const anybody = Anybody({
   weight: ['700', '800', '900'],
 });
 
-const instrumentSerif = Instrument_Serif({
+const onest = Onest({
   subsets: ['latin'],
   display: 'swap',
-  variable: '--font-serif-italic',
-  weight: ['400'],
-  style: ['normal', 'italic'],
+  variable: '--font-onest',
+  weight: ['200', '300', '400', '500', '600', '700'],
 });
 
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-mono-tech',
-  weight: ['400', '500'],
-});
+const siteUrl = 'https://nzhorov.com';
+const description = 'Portfolio of Nikita Zhorov, a web and brand designer in Germany. Selected work in digital products, brand identity and campaigns.';
 
 export const metadata: Metadata = {
-  title: 'Nikita Zhorov — Product & Marketing Designer',
-  description: 'Personal portfolio of Nikita Zhorov, Product & Marketing Designer based in Chemnitz, Germany.',
+  metadataBase: new URL(siteUrl),
+  title: 'Nikita Zhorov — Web & Brand Designer',
+  description,
+  applicationName: 'Nikita Zhorov Portfolio',
+  alternates: { canonical: '/' },
   openGraph: {
-    title: 'Nikita Zhorov — Product & Marketing Designer',
-    description: 'Personal portfolio of Nikita Zhorov, Product & Marketing Designer based in Chemnitz, Germany.',
     type: 'website',
+    url: siteUrl,
+    siteName: 'Nikita Zhorov',
+    title: 'Nikita Zhorov — Web & Brand Designer',
+    description,
+    locale: 'en_US',
+    images: [{ url: '/opengraph-image', width: 1200, height: 630, alt: 'Nikita Zhorov — Web & Brand Designer' }],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Nikita Zhorov — Product & Marketing Designer',
-    description: 'Personal portfolio of Nikita Zhorov, Product & Marketing Designer based in Chemnitz, Germany.',
+    title: 'Nikita Zhorov — Web & Brand Designer',
+    description,
+    images: ['/opengraph-image'],
   },
 };
 
-export default function RootLayout({children}: {children: React.ReactNode}) {
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  themeColor: '#F5F5F5',
+};
+
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html
-      lang="en"
-      suppressHydrationWarning
-      className={`${manrope.variable} ${anybody.variable} ${instrumentSerif.variable} ${jetbrainsMono.variable}`}
-    >
-      <head suppressHydrationWarning>
-        <link rel="preload" as="image" href="/assets/portrait.png?v=2" />
-        <link rel="preload" as="image" href="/assets/work_uiux.png" />
-        <link rel="preload" as="image" href="/assets/work_brand.png" />
-        <link rel="preload" as="image" href="/assets/work_marketing.png" />
-        <link rel="preload" as="image" href="/assets/zip_hero.png" />
-        <link rel="preload" as="image" href="/assets/vrak/crush_can.png" />
-        <link rel="preload" as="image" href="/assets/vrak/zip_can.png" />
-        <link rel="preload" as="image" href="/assets/vrak/twist_can.png" />
-      </head>
-      <body className="bg-[var(--bg)] text-[var(--text)] font-sans antialiased selection:bg-[var(--text)] selection:text-[var(--surface)]" suppressHydrationWarning>
-        {/* Intercept early window.ethereum injection & extension unhandled rejections prior to React hydration */}
-        <script
-          id="early-extension-guard"
-          suppressHydrationWarning
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                function shouldSuppress(msg) {
-                  if (!msg) return false;
-                  var str = typeof msg === 'string' ? msg : (msg.message || msg.stack || '' + msg);
-                  return /MetaMask|ethereum|inpage|chrome-extension|moz-extension|web3/i.test(str);
-                }
-
-                window.addEventListener('unhandledrejection', function(event) {
-                  if (event && shouldSuppress(event.reason)) {
-                    event.preventDefault();
-                    if (typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
-                  }
-                }, true);
-
-                window.addEventListener('error', function(event) {
-                  if (event && (shouldSuppress(event.message) || shouldSuppress(event.filename))) {
-                    event.preventDefault();
-                    if (typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
-                  }
-                }, true);
-
-                // Define dummy non-throwing ethereum provider if extension or script checks it
-                try {
-                  if (typeof window.ethereum === 'undefined') {
-                    var noop = function() { return Promise.resolve([]); };
-                    var dummyProvider = {
-                      isMetaMask: true,
-                      request: function(args) {
-                        if (args && args.method === 'eth_accounts') return Promise.resolve([]);
-                        if (args && args.method === 'eth_requestAccounts') return Promise.resolve([]);
-                        return Promise.resolve(null);
-                      },
-                      sendAsync: function(payload, cb) { if (typeof cb === 'function') cb(null, { result: [] }); },
-                      send: function(method) { return Promise.resolve([]); },
-                      on: function() {},
-                      removeListener: function() {},
-                      addListener: function() {},
-                      enable: noop
-                    };
-                    Object.defineProperty(window, 'ethereum', {
-                      value: dummyProvider,
-                      writable: true,
-                      configurable: true
-                    });
-                  }
-                } catch(e) {}
-              })();
-            `,
-          }}
-        />
-        <ThirdPartyExtensionGuard />
+    <html lang="en" className={`${manrope.variable} ${anybody.variable} ${onest.variable}`}>
+      <body className="bg-[var(--bg)] text-[var(--text)] font-sans antialiased selection:bg-[var(--text)] selection:text-[var(--surface)]">
         <GlobalElasticCursor />
         {children}
       </body>

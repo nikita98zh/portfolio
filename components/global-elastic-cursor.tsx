@@ -23,7 +23,7 @@ export function GlobalElasticCursor() {
     // Only run on desktop / fine-pointer devices
     if (typeof window === 'undefined') return;
     const isFinePointer = window.matchMedia('(pointer: fine)').matches;
-    if (!isFinePointer) return;
+    if (!isFinePointer || window.matchMedia('(max-width: 1023px), (prefers-reduced-motion: reduce)').matches) return;
 
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -41,6 +41,7 @@ export function GlobalElasticCursor() {
       if (!canvas) return;
       width = canvas.width = window.innerWidth;
       height = canvas.height = window.innerHeight;
+      document.documentElement.classList.toggle('custom-cursor-active', width >= 1024);
     };
     window.addEventListener('resize', onResize, { passive: true });
 
@@ -107,6 +108,10 @@ export function GlobalElasticCursor() {
     let animationFrameId: number;
 
     const render = () => {
+      if (document.hidden || width < 1024) {
+        animationFrameId = requestAnimationFrame(render);
+        return;
+      }
       // Clear canvas
       ctx.clearRect(0, 0, width, height);
 

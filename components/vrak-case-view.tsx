@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { motion } from 'motion/react';
+import { motion, useReducedMotion } from 'motion/react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Flip } from 'gsap/Flip';
@@ -18,9 +18,9 @@ interface VrakCaseViewProps {
 }
 
 const vrakSlides = [
-  { src: '/assets/vrak/crush_bg.png', alt: 'VRAK CRUSH' },
-  { src: '/assets/vrak/zip_bg.png', alt: 'VRAK ZIP' },
-  { src: '/assets/vrak/twist_bg.png', alt: 'VRAK TWIST' },
+  { src: '/assets/vrak/crush_bg.webp', alt: 'VRAK CRUSH' },
+  { src: '/assets/vrak/zip_bg.webp', alt: 'VRAK ZIP' },
+  { src: '/assets/vrak/twist_bg.webp', alt: 'VRAK TWIST' },
 ];
 
 const typefaces = [
@@ -40,6 +40,7 @@ const typefaces = [
 
 export function VrakCaseView({ onClose }: VrakCaseViewProps): React.ReactElement {
   const router = useRouter();
+  const reducedMotion = useReducedMotion();
   const [slideIndex, setSlideIndex] = useState(0);
   const [isNavVisible, setIsNavVisible] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -50,6 +51,7 @@ export function VrakCaseView({ onClose }: VrakCaseViewProps): React.ReactElement
     if (containerRef.current) {
       containerRef.current.scrollTop = 0;
     }
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const timer = setInterval(() => {
       setSlideIndex((prev) => (prev + 1) % vrakSlides.length);
     }, 1500);
@@ -112,6 +114,7 @@ export function VrakCaseView({ onClose }: VrakCaseViewProps): React.ReactElement
   // =========================================================================
   useEffect(() => {
     if (!containerRef.current) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
     const ctx = gsap.context(() => {
       // 1. HERO TEXT ENTRANCE (Fade-up line reveal without destructive overflow clipping)
@@ -482,7 +485,7 @@ export function VrakCaseView({ onClose }: VrakCaseViewProps): React.ReactElement
           pointerEvents: isNavVisible ? 'auto' : 'none',
         }}
         transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
-        className="fixed top-6 left-6 sm:top-8 sm:left-8 z-50 flex items-center gap-2.5 text-[var(--text)] font-manrope font-semibold text-xs sm:text-sm tracking-[0.22em] uppercase hover:opacity-50 transition-opacity cursor-pointer group select-none"
+        className="fixed bottom-[max(20px,env(safe-area-inset-bottom))] left-5 lg:bottom-auto lg:top-8 lg:left-8 z-50 flex min-h-11 items-center gap-2.5 bg-[var(--bg)] px-3 text-[var(--text)] font-manrope font-semibold text-sm tracking-[0.06em] uppercase hover:opacity-50 transition-opacity cursor-pointer group select-none"
         aria-label="Back to overview"
       >
         <span className="text-sm transition-transform duration-200 group-hover:-translate-x-1">←</span>
@@ -502,14 +505,17 @@ export function VrakCaseView({ onClose }: VrakCaseViewProps): React.ReactElement
             <h1
               ref={heroHeadingRef}
               id="hero-statement-heading"
+              aria-label="A loud category doesn't need more noise. It needs something people remember."
               className="relative self-stretch font-manrope text-3xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-extralight leading-[1.12] tracking-[-0.01em] text-[var(--text)] uppercase select-none"
             >
               <span className="hero-line">
                 <span className="hero-line-inner">A LOUD CATEGORY DOESN&apos;T</span>
               </span>
+              {' '}
               <span className="hero-line">
                 <span className="hero-line-inner">NEED MORE NOISE. IT NEEDS</span>
               </span>
+              {' '}
               <span className="hero-line">
                 <span className="hero-line-inner">SOMETHING PEOPLE REMEMBER.</span>
               </span>
@@ -532,7 +538,7 @@ export function VrakCaseView({ onClose }: VrakCaseViewProps): React.ReactElement
                 key={slide.src}
                 src={slide.src}
                 alt={slide.alt}
-                loading="eager"
+                loading={idx === 0 ? 'eager' : 'lazy'}
                 decoding="sync"
                 className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ease-in-out ${
                   idx === slideIndex ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'
@@ -582,7 +588,7 @@ export function VrakCaseView({ onClose }: VrakCaseViewProps): React.ReactElement
         </section>
 
         {/* =========================================================================
-            4. PRODUCT LINEUP SECTION: Typography + 3_hero.png
+            4. PRODUCT LINEUP SECTION: Typography + 3_hero.webp
             ========================================================================= */}
         <section
           className="flex flex-col lg:flex-row items-start justify-end gap-8 lg:gap-6 px-6 sm:px-12 lg:px-20 py-8 lg:py-0 relative self-stretch w-full shrink-0"
@@ -611,8 +617,8 @@ export function VrakCaseView({ onClose }: VrakCaseViewProps): React.ReactElement
             <img
               className="relative w-full h-full object-cover will-change-transform"
               alt="Product lineup"
-              src="/assets/vrak/3_hero.png"
-              loading="eager"
+              src="/assets/vrak/3_hero.webp"
+              loading="lazy"
             />
           </div>
         </section>
@@ -647,7 +653,7 @@ export function VrakCaseView({ onClose }: VrakCaseViewProps): React.ReactElement
         </section>
 
         {/* =========================================================================
-            6. CRUSH CHARACTER SECTION (crush_poster.png)
+            6. CRUSH CHARACTER SECTION (crush_poster.webp)
             ========================================================================= */}
         <section
           className="flex flex-col lg:flex-row min-h-[auto] lg:h-[758px] items-start gap-6 relative self-stretch w-full"
@@ -658,8 +664,8 @@ export function VrakCaseView({ onClose }: VrakCaseViewProps): React.ReactElement
             <img
               className="relative w-full h-full object-cover will-change-transform"
               alt="CRUSH product design"
-              src="/assets/vrak/crush_poster.png"
-              loading="eager"
+              src="/assets/vrak/crush_poster.webp"
+              loading="lazy"
             />
           </div>
           <div className="w-full lg:w-[948px] min-h-[auto] lg:h-[758px] px-6 sm:px-12 lg:px-0 items-start justify-center gap-5 flex flex-col relative py-8 lg:py-0">
@@ -678,7 +684,7 @@ export function VrakCaseView({ onClose }: VrakCaseViewProps): React.ReactElement
         </section>
 
         {/* =========================================================================
-            7. ZIP CHARACTER SECTION (zip_poster.png)
+            7. ZIP CHARACTER SECTION (zip_poster.webp)
             ========================================================================= */}
         <section
           className="relative flex flex-col-reverse lg:flex-row min-h-[auto] lg:h-[758px] w-full self-stretch items-start justify-end gap-6"
@@ -704,14 +710,14 @@ export function VrakCaseView({ onClose }: VrakCaseViewProps): React.ReactElement
             <img
               className="relative w-full h-full object-cover will-change-transform"
               alt="ZIP character design"
-              src="/assets/vrak/zip_poster.png"
-              loading="eager"
+              src="/assets/vrak/zip_poster.webp"
+              loading="lazy"
             />
           </div>
         </section>
 
         {/* =========================================================================
-            8. TWIST CHARACTER SECTION (twist_poster.png)
+            8. TWIST CHARACTER SECTION (twist_poster.webp)
             ========================================================================= */}
         <section
           className="relative flex flex-col lg:flex-row min-h-[auto] lg:h-[758px] w-full self-stretch items-start gap-6"
@@ -722,8 +728,8 @@ export function VrakCaseView({ onClose }: VrakCaseViewProps): React.ReactElement
             <img
               className="relative w-full h-full object-cover will-change-transform"
               alt="TWIST character design"
-              src="/assets/vrak/twist_poster.png"
-              loading="eager"
+              src="/assets/vrak/twist_poster.webp"
+              loading="lazy"
             />
           </div>
           <div className="relative flex min-h-[auto] lg:h-[758px] w-full lg:w-[948px] px-6 sm:px-12 lg:px-0 flex-col items-start justify-center gap-5 py-8 lg:py-0">
@@ -770,7 +776,7 @@ export function VrakCaseView({ onClose }: VrakCaseViewProps): React.ReactElement
         </section>
 
         {/* =========================================================================
-            10. BRAND IN HAND VISUAL (hand.png)
+            10. BRAND IN HAND VISUAL (hand.webp)
             ========================================================================= */}
         <section
           className="vrak-visual-frame relative self-stretch w-full h-[60vh] sm:h-[80vh] lg:h-[1080px] overflow-hidden"
@@ -779,9 +785,9 @@ export function VrakCaseView({ onClose }: VrakCaseViewProps): React.ReactElement
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             className="w-full h-full object-cover will-change-transform"
-            alt="Hands holding Vrank beverage cans"
-            src="/assets/vrak/hand.png"
-            loading="eager"
+            alt="Hands holding VRAK beverage cans"
+            src="/assets/vrak/hand.webp"
+            loading="lazy"
           />
         </section>
 
@@ -791,28 +797,24 @@ export function VrakCaseView({ onClose }: VrakCaseViewProps): React.ReactElement
         <section className="flex min-h-[140px] lg:h-[180px] items-center gap-6 py-6 lg:py-8 relative self-stretch w-full bg-[var(--surface-dark)] overflow-hidden select-none">
           <div className="flex w-max whitespace-nowrap overflow-hidden">
             <motion.div
-              animate={{ x: ['0%', '-50%'] }}
+              animate={reducedMotion ? { x: 0 } : { x: ['0%', '-50%'] }}
               transition={{
-                repeat: Infinity,
+                repeat: reducedMotion ? 0 : Infinity,
                 ease: 'linear',
-                duration: 18,
+                duration: reducedMotion ? 0 : 18,
               }}
               className="flex items-center gap-12 text-white font-anybody font-extrabold text-4xl sm:text-6xl md:text-7xl lg:text-[90px] tracking-[0] uppercase"
             >
               <span>ENERGY, BARELY CONTAINED.</span>
-              <span className="text-[var(--text-muted)] font-mono text-3xl sm:text-5xl">{'//'}</span>
               <span>CONTAINED CHAOS</span>
-              <span className="text-[var(--text-muted)] font-mono text-3xl sm:text-5xl">{'//'}</span>
               <span>ENERGY, BARELY CONTAINED.</span>
-              <span className="text-[var(--text-muted)] font-mono text-3xl sm:text-5xl">{'//'}</span>
               <span>CONTAINED CHAOS</span>
-              <span className="text-[var(--text-muted)] font-mono text-3xl sm:text-5xl">{'//'}</span>
             </motion.div>
           </div>
         </section>
 
         {/* =========================================================================
-            12. PRODUCT PHOTOGRAPHY (ice.png)
+            12. PRODUCT PHOTOGRAPHY (ice.webp)
             ========================================================================= */}
         <section
           className="flex flex-col-reverse lg:flex-row w-full max-w-[1760px] items-start lg:items-end justify-between relative shrink-0 px-6 sm:px-12 lg:px-0 gap-8 lg:gap-6"
@@ -833,14 +835,14 @@ export function VrakCaseView({ onClose }: VrakCaseViewProps): React.ReactElement
             <img
               className="relative w-full h-full object-cover shrink-0 will-change-transform"
               alt="Three Vrank cans surrounded by ice"
-              src="/assets/vrak/ice.png"
-              loading="eager"
+              src="/assets/vrak/ice.webp"
+              loading="lazy"
             />
           </div>
         </section>
 
         {/* =========================================================================
-            14. OUTDOOR ADVERTISING (social.png)
+            14. OUTDOOR ADVERTISING (social.webp)
             ========================================================================= */}
         <section className="flex items-start gap-6 px-6 sm:px-12 lg:pl-20 lg:pr-0 py-16 lg:py-20 relative self-stretch w-full shrink-0">
           <div className="w-full max-w-[1760px] items-start lg:items-end flex flex-col gap-5 relative">
@@ -862,8 +864,8 @@ export function VrakCaseView({ onClose }: VrakCaseViewProps): React.ReactElement
           <img
             className="relative self-stretch w-full h-auto aspect-[2.0] sm:aspect-[2.23] object-cover will-change-transform"
             alt="Vrank outdoor advertising campaign"
-            src="/assets/vrak/social.png"
-            loading="eager"
+            src="/assets/vrak/social.webp"
+            loading="lazy"
           />
         </section>
 
@@ -872,7 +874,7 @@ export function VrakCaseView({ onClose }: VrakCaseViewProps): React.ReactElement
             6 Campaign Assets with Aperture Zoom revealing "THANKS FOR WATCHING" in Manrope Bold
             ========================================================================= */}
         <section
-          className="vrak-sticky-grid-section relative w-full h-[380vh] bg-[var(--bg)]"
+          className="vrak-sticky-grid-section relative w-full h-[380vh] bg-[var(--bg)] motion-reduce:h-[100dvh]"
           aria-label="VRAK campaign finale and gallery"
         >
           <div className="vrak-sticky-grid-wrapper sticky top-0 w-full h-screen max-h-[100dvh] overflow-hidden flex items-center justify-center relative select-none">
@@ -894,13 +896,13 @@ export function VrakCaseView({ onClose }: VrakCaseViewProps): React.ReactElement
             </div>
 
             {/* Gallery Grid (3 Columns x 2 Rows = 6 Assets) - Significantly larger initial presentation */}
-            <div className="vrak-sticky-gallery relative z-10 w-[96vw] sm:w-[94vw] lg:w-[92vw] max-w-[1280px] 2xl:max-w-[1400px] flex items-center justify-center">
+            <div className="vrak-sticky-gallery relative z-10 w-[96vw] sm:w-[94vw] lg:w-[92vw] max-w-[1280px] 2xl:max-w-[1400px] flex items-center justify-center motion-reduce:opacity-25">
               <div className="vrak-sticky-grid grid grid-cols-3 gap-3.5 sm:gap-6 lg:gap-8 w-full items-center justify-items-center will-change-transform">
                 {/* Col 0: Item 0 (Top-Left) */}
                 <div className="vrak-sticky-grid-item relative w-full aspect-[4/5] overflow-hidden bg-[var(--surface-dark)] will-change-transform shadow-2xl">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src="/assets/vrak/soc_1.png"
+                    src="/assets/vrak/soc_1.webp"
                     alt="VRAK Social campaign visual 01"
                     className="w-full h-full object-cover select-none pointer-events-none"
                     loading="lazy"
@@ -911,7 +913,7 @@ export function VrakCaseView({ onClose }: VrakCaseViewProps): React.ReactElement
                 <div className="vrak-sticky-grid-item relative w-full aspect-[4/5] overflow-hidden bg-[var(--surface-dark)] will-change-transform shadow-2xl">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src="/assets/vrak/soc_2.png"
+                    src="/assets/vrak/soc_2.webp"
                     alt="VRAK Social campaign visual 02"
                     className="w-full h-full object-cover select-none pointer-events-none"
                     loading="lazy"
@@ -922,7 +924,7 @@ export function VrakCaseView({ onClose }: VrakCaseViewProps): React.ReactElement
                 <div className="vrak-sticky-grid-item relative w-full aspect-[4/5] overflow-hidden bg-[var(--surface-dark)] will-change-transform shadow-2xl">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src="/assets/vrak/soc_3.png"
+                    src="/assets/vrak/soc_3.webp"
                     alt="VRAK Social campaign visual 03"
                     className="w-full h-full object-cover select-none pointer-events-none"
                     loading="lazy"
@@ -933,7 +935,7 @@ export function VrakCaseView({ onClose }: VrakCaseViewProps): React.ReactElement
                 <div className="vrak-sticky-grid-item relative w-full aspect-[4/5] overflow-hidden bg-[var(--surface-dark)] will-change-transform shadow-2xl">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src="/assets/vrak/soc_4.png"
+                    src="/assets/vrak/soc_4.webp"
                     alt="VRAK Social campaign visual 04"
                     className="w-full h-full object-cover select-none pointer-events-none"
                     loading="lazy"
@@ -944,7 +946,7 @@ export function VrakCaseView({ onClose }: VrakCaseViewProps): React.ReactElement
                 <div className="vrak-sticky-grid-item relative w-full aspect-[4/5] overflow-hidden bg-[var(--surface-dark)] will-change-transform shadow-2xl">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src="/assets/vrak/soc_5.png"
+                    src="/assets/vrak/soc_5.webp"
                     alt="VRAK Social campaign visual 05"
                     className="w-full h-full object-cover select-none pointer-events-none"
                     loading="lazy"
@@ -955,7 +957,7 @@ export function VrakCaseView({ onClose }: VrakCaseViewProps): React.ReactElement
                 <div className="vrak-sticky-grid-item relative w-full aspect-[4/5] overflow-hidden bg-[var(--surface-dark)] will-change-transform shadow-2xl">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src="/assets/vrak/soc_6.png"
+                    src="/assets/vrak/soc_6.webp"
                     alt="VRAK Social campaign visual 06"
                     className="w-full h-full object-cover select-none pointer-events-none"
                     loading="lazy"
@@ -969,4 +971,3 @@ export function VrakCaseView({ onClose }: VrakCaseViewProps): React.ReactElement
     </div>
   );
 }
-

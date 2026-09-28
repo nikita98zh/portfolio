@@ -6,6 +6,7 @@ import { motion } from 'motion/react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { isSoundEnabled, playTickSound, playReverseImplosionSound } from '@/lib/sound-fx';
+import { ViewportVideo } from '@/components/viewport-video';
 
 // Register GSAP plugins safely on client side
 if (typeof window !== 'undefined') {
@@ -19,27 +20,27 @@ interface MorfCaseViewProps {
 // 6 Dedicated MORF Social/Gallery items (strictly MORF soc_ assets)
 const MORF_GALLERY_ITEMS = [
   {
-    src: '/assets/morf/soc_1.png',
+    src: '/assets/morf/soc_1.webp',
     alt: 'MORF Dogwear campaign identity visual 01',
   },
   {
-    src: '/assets/morf/soc_2.png',
+    src: '/assets/morf/soc_2.webp',
     alt: 'MORF Dogwear campaign identity visual 02',
   },
   {
-    src: '/assets/morf/soc_3.png',
+    src: '/assets/morf/soc_3.webp',
     alt: 'MORF Dogwear campaign identity visual 03',
   },
   {
-    src: '/assets/morf/soc_4.png',
+    src: '/assets/morf/soc_4.webp',
     alt: 'MORF Dogwear campaign identity visual 04',
   },
   {
-    src: '/assets/morf/soc_5.png',
+    src: '/assets/morf/soc_5.webp',
     alt: 'MORF Dogwear campaign identity visual 05',
   },
   {
-    src: '/assets/morf/soc_6.png',
+    src: '/assets/morf/soc_6.webp',
     alt: 'MORF Dogwear campaign identity visual 06',
   },
 ];
@@ -476,7 +477,7 @@ export function MorfCaseView({ onClose }: MorfCaseViewProps): React.ReactElement
           pointerEvents: isNavVisible ? 'auto' : 'none',
         }}
         transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
-        className="fixed top-6 left-6 sm:top-8 sm:left-8 z-50 flex items-center gap-2.5 text-[var(--text)] font-manrope font-semibold text-xs sm:text-sm tracking-[0.22em] uppercase hover:opacity-50 transition-opacity cursor-pointer group select-none"
+        className="fixed bottom-[max(20px,env(safe-area-inset-bottom))] left-5 lg:bottom-auto lg:top-8 lg:left-8 z-50 flex min-h-11 items-center gap-2.5 bg-[var(--bg)] px-3 text-[var(--text)] font-manrope font-semibold text-sm tracking-[0.06em] uppercase hover:opacity-50 transition-opacity cursor-pointer group select-none"
         aria-label="Back to overview"
       >
         <span className="text-sm transition-transform duration-200 group-hover:-translate-x-1">←</span>
@@ -498,17 +499,12 @@ export function MorfCaseView({ onClose }: MorfCaseViewProps): React.ReactElement
             ========================================================================= */}
         <section className="relative w-full pb-16 sm:pb-24 lg:pb-36" aria-label="MORF campaign hero video">
           <figure className="morf-hero-frame m-0 relative w-full aspect-[4/5] sm:aspect-[1.78] overflow-hidden bg-[var(--surface-dark)]">
-            <video
+            <ViewportVideo
               className="w-full h-full object-cover"
               src="/assets/morf/main_video.mp4"
-              autoPlay
-              loop
-              muted
-              playsInline
-              controls={false}
-              disablePictureInPicture
-              disableRemotePlayback
-              aria-label="MORF campaign scene featuring a dog and owner in an urban setting"
+              poster="/assets/morf/main_video-poster.webp"
+              scrollRoot={containerRef}
+              label="MORF campaign scene featuring a dog and owner in an urban setting"
             />
           </figure>
         </section>
@@ -560,7 +556,7 @@ export function MorfCaseView({ onClose }: MorfCaseViewProps): React.ReactElement
               <img
                 className="w-full h-full object-cover"
                 alt="MORF campaign portrait with a dog and owner"
-                src="/assets/morf/women_dogs.png"
+                src="/assets/morf/women_dogs.webp"
                 loading="lazy"
                 decoding="async"
               />
@@ -605,7 +601,7 @@ export function MorfCaseView({ onClose }: MorfCaseViewProps): React.ReactElement
               <img
                 className="w-full h-auto object-contain"
                 alt="MORF design system presentation"
-                src="/assets/morf/Design System.png"
+                src="/assets/morf/Design System.webp"
                 loading="lazy"
                 decoding="async"
               />
@@ -641,7 +637,7 @@ export function MorfCaseView({ onClose }: MorfCaseViewProps): React.ReactElement
                 <img
                   className="w-full h-auto aspect-[0.22] object-cover"
                   alt="MORF home page digital experience"
-                  src="/assets/morf/HOME.png"
+                  src="/assets/morf/HOME.webp"
                   loading="lazy"
                   decoding="async"
                 />
@@ -653,7 +649,7 @@ export function MorfCaseView({ onClose }: MorfCaseViewProps): React.ReactElement
                 <img
                   className="w-full h-auto aspect-[0.32] object-cover"
                   alt="MORF coat product detail page"
-                  src="/assets/morf/PDP COAT 01.png"
+                  src="/assets/morf/PDP COAT 01.webp"
                   loading="lazy"
                   decoding="async"
                 />
@@ -672,18 +668,12 @@ export function MorfCaseView({ onClose }: MorfCaseViewProps): React.ReactElement
           <div className="flex flex-col lg:flex-row items-center gap-10 lg:gap-12 xl:gap-16 w-full">
             {/* Left: Vertical Video (mob_video.mp4) */}
             <figure className="m-0 w-full sm:w-[423px] shrink-0 aspect-[0.57] overflow-hidden bg-[var(--surface-dark)]">
-              <video
+              <ViewportVideo
                 className="w-full h-full object-cover"
                 src="/assets/morf/mob_video.mp4"
-                poster="/assets/morf/mob_1.png"
-                autoPlay
-                loop
-                muted
-                playsInline
-                controls={false}
-                disablePictureInPicture
-                disableRemotePlayback
-                aria-label="MORF brand identity application"
+                poster="/assets/morf/mob_1.webp"
+                scrollRoot={containerRef}
+                label="MORF brand identity application"
               />
             </figure>
 
@@ -724,7 +714,7 @@ export function MorfCaseView({ onClose }: MorfCaseViewProps): React.ReactElement
                 <img
                   className="w-full h-auto object-contain"
                   alt="MORF responsive mobile product experience"
-                  src="/assets/morf/mob_1.png"
+                  src="/assets/morf/mob_1.webp"
                   loading="lazy"
                   decoding="async"
                 />
@@ -736,7 +726,7 @@ export function MorfCaseView({ onClose }: MorfCaseViewProps): React.ReactElement
                 <img
                   className="w-full h-auto object-contain"
                   alt="MORF responsive screen layout"
-                  src="/assets/morf/mob_2.png"
+                  src="/assets/morf/mob_2.webp"
                   loading="lazy"
                   decoding="async"
                 />

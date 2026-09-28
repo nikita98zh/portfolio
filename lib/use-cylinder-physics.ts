@@ -27,6 +27,10 @@ export function useCylinderPhysics({ isAnyCaseOpen, isReducedMotion = false }: U
 
   useEffect(() => {
     isAnyCaseOpenRef.current = isAnyCaseOpen;
+    if (isAnyCaseOpen) {
+      velocityURef.current = 0;
+      targetURef.current = currentURef.current;
+    }
   }, [isAnyCaseOpen]);
 
   useEffect(() => {
@@ -74,10 +78,10 @@ export function useCylinderPhysics({ isAnyCaseOpen, isReducedMotion = false }: U
       const delta = event.deltaMode === 1 ? event.deltaY * 16 : event.deltaMode === 2 ? event.deltaY * window.innerHeight : event.deltaY;
       if (Math.abs(delta) < 0.2) return;
       event.preventDefault();
-      const step = Math.max(-0.22, Math.min(0.22, delta * 0.00135));
+      const step = Math.max(-0.18, Math.min(0.18, delta * 0.00115));
       targetURef.current += step;
       if (!isReducedMotion) {
-        velocityURef.current = Math.max(-0.022, Math.min(0.022, velocityURef.current + step * 0.045));
+        velocityURef.current = Math.max(-0.012, Math.min(0.012, velocityURef.current + step * 0.025));
       }
     };
     window.addEventListener('wheel', handleWheel, { passive: false });
@@ -86,12 +90,15 @@ export function useCylinderPhysics({ isAnyCaseOpen, isReducedMotion = false }: U
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (isAnyCaseOpenRef.current || (event.target as HTMLElement)?.closest('input, textarea, [contenteditable="true"]')) return;
+      if (
+        isAnyCaseOpenRef.current || event.altKey || event.ctrlKey || event.metaKey ||
+        (event.target as HTMLElement)?.closest('input, textarea, select, button, a, [contenteditable="true"]')
+      ) return;
       const direction = event.key === 'ArrowDown' || event.key === 'PageDown' || event.key === ' ' ? 1 : event.key === 'ArrowUp' || event.key === 'PageUp' ? -1 : 0;
       if (direction) {
         event.preventDefault();
-        const milestone = evaluateSurface(currentURef.current).activeMilestone;
-        targetURef.current = getDwellCenterU(milestone + direction);
+        const distance = event.key === 'PageDown' || event.key === 'PageUp' || event.key === ' ' ? 0.8 : 0.24;
+        targetURef.current += direction * distance;
         velocityURef.current = 0;
       } else if (event.key === 'Home') {
         event.preventDefault();
@@ -118,7 +125,7 @@ export function useCylinderPhysics({ isAnyCaseOpen, isReducedMotion = false }: U
     dragStartYRef.current = y;
     touchHistoryRef.current.push({ y, t: performance.now() });
     if (touchHistoryRef.current.length > 5) touchHistoryRef.current.shift();
-    targetURef.current += (delta / window.innerHeight) * (isReducedMotion ? 3.2 : 3.6);
+    targetURef.current += (delta / window.innerHeight) * (isReducedMotion ? 2.2 : 2.6);
   }, [isReducedMotion]);
 
   const endDrag = useCallback(() => {
@@ -128,12 +135,28 @@ export function useCylinderPhysics({ isAnyCaseOpen, isReducedMotion = false }: U
       const first = history[0];
       const last = history[history.length - 1];
       const velocity = (first.y - last.y) / Math.max(16, last.t - first.t);
-      velocityURef.current = Math.max(-0.25, Math.min(0.25, velocity * 0.055));
+      velocityURef.current = Math.max(-0.018, Math.min(0.018, velocity * 0.018));
     }
     isDraggingRef.current = false;
     dragStartYRef.current = null;
     touchHistoryRef.current = [];
   }, [isReducedMotion]);
+
+  const cancelDrag = useCallback(() => {
+    isDraggingRef.current = false;
+    dragStartYRef.current = null;
+    touchHistoryRef.current = [];
+    velocityURef.current = 0;
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener('mouseup', endDrag);
+    window.addEventListener('blur', cancelDrag);
+    return () => {
+      window.removeEventListener('mouseup', endDrag);
+      window.removeEventListener('blur', cancelDrag);
+    };
+  }, [endDrag, cancelDrag]);
 
   const handleClickPeeking = useCallback((milestone: number) => {
     if (!isAnyCaseOpenRef.current) {
@@ -148,14 +171,21 @@ export function useCylinderPhysics({ isAnyCaseOpen, isReducedMotion = false }: U
     velocityURef.current = 0;
   }, []);
 
-  const scrollToMilestone = useCallback((milestone: number) => {
-    targetURef.current = getDwellCenterU(milestone);
+  const scrollToU = useCallback((u: number) => {
+    targetURef.current = u;
+    currentURef.current = u;
     velocityURef.current = 0;
-  }, []);
+    const surface = evaluateSurface(u);
+    cylinderPosMotion.set(surface.cylinderPos);
+    portraitProgressMotion.set(surface.portraitProgress);
+    fragmentsRotationMotion.set(surface.fragmentsRotation);
+    uMotion.set(u);
+    setCenterMilestone(surface.activeMilestone);
+  }, [cylinderPosMotion, portraitProgressMotion, fragmentsRotationMotion, uMotion]);
 
   return {
     uMotion, cylinderPosMotion, portraitProgressMotion, fragmentsRotationMotion,
-    centerMilestone, targetURef, currentURef, handleClickPeeking, handleReturnToHero, scrollToMilestone,
+    centerMilestone, targetURef, currentURef, handleClickPeeking, handleReturnToHero, scrollToU,
     dragHandlers: {
       onMouseDown: (event: React.MouseEvent) => { if (event.button === 0) beginDrag(event.clientY, event.target); },
       onMouseMove: (event: React.MouseEvent) => moveDrag(event.clientY),
@@ -163,6 +193,7 @@ export function useCylinderPhysics({ isAnyCaseOpen, isReducedMotion = false }: U
       onTouchStart: (event: React.TouchEvent) => beginDrag(event.touches[0].clientY, event.target),
       onTouchMove: (event: React.TouchEvent) => moveDrag(event.touches[0].clientY),
       onTouchEnd: endDrag,
+      onTouchCancel: cancelDrag,
     },
   };
 }

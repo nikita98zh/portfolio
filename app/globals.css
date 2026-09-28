@@ -1,5 +1,4 @@
 @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Onest:wght@200;300;400;500;600;700&family=Anybody:wght@700;800;900&family=Manrope:wght@200;300;400;500;600;700;800&display=swap');
 
 :root {
   --bg: #F5F5F5;
@@ -65,55 +64,40 @@
 }
 
 .font-onest {
-  font-family: 'Onest', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--font-onest), 'Onest', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 .font-manrope {
   font-family: var(--font-manrope), 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-.font-serif-instrument {
-  font-family: var(--font-serif-italic), 'Instrument Serif', Georgia, serif;
-}
-
-.font-mono-tech {
-  font-family: var(--font-mono-tech), 'JetBrains Mono', monospace;
-}
-
-/* Luxury Specular Gloss Sweep for "just marketing." */
-@keyframes specular-sweep {
-  0% {
-    transform: translateX(-150%) skewX(-20deg);
-  }
-  100% {
-    transform: translateX(250%) skewX(-20deg);
+/* The homepage drum hides scrolling only on wide screens. Case studies and
+   compact layouts need visible, native scroll affordances. */
+@media (max-width: 1023px), (pointer: coarse) {
+  html, body {
+    overflow-x: clip;
+    overflow-y: auto;
+    overscroll-behavior-y: auto;
   }
 }
 
-.animate-specular-sweep {
-  animation: specular-sweep 2.8s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+@media (min-width: 1024px) and (pointer: fine) {
+  #mobile-portfolio { display: none; }
 }
 
-/* Technical terminal cursor blink for "just software." */
-@keyframes cursor-pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .mobile-reveal {
+      animation: mobile-reveal 1s both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 85%;
+    }
+  }
 }
 
-.animate-cursor-pulse {
-  animation: cursor-pulse 0.9s step-end infinite;
-}
-
-/* Hide native scrollbars for seamless cylindrical stage */
-::-webkit-scrollbar {
-  display: none;
-  width: 0px;
-  background: transparent;
-}
-
-html, body {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+@keyframes mobile-reveal {
+  from { opacity: 0.65; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 /* Codrops On-Scroll Text Highlight (Effect 11 FLIP) */
@@ -148,4 +132,3 @@ html, body {
 .contained-reveal-inner {
   will-change: transform, filter, clip-path;
 }
-

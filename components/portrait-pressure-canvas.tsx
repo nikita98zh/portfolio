@@ -363,9 +363,14 @@ export const PortraitPressureCanvas = memo(function PortraitPressureCanvas({
     // 9. 60 FPS Render Loop & Chrono-Slit Simulation (with tab background throttling, Awwwards #88)
     let animationFrameId: number;
     let hasRenderedFirstFrame = false;
+    let inViewport = true;
+    const visibilityObserver = new IntersectionObserver(([entry]) => {
+      inViewport = entry.isIntersecting;
+    }, { rootMargin: '150px' });
+    visibilityObserver.observe(container);
 
     const render = () => {
-      if (document.hidden) {
+      if (document.hidden || !inViewport) {
         animationFrameId = requestAnimationFrame(render);
         return;
       }
@@ -438,6 +443,7 @@ export const PortraitPressureCanvas = memo(function PortraitPressureCanvas({
 
     return () => {
       cancelAnimationFrame(animationFrameId);
+      visibilityObserver.disconnect();
       if (resizeFrameId !== null) cancelAnimationFrame(resizeFrameId);
       window.removeEventListener('pointermove', onPointerMove);
       window.removeEventListener('resize', resizeCanvas);
