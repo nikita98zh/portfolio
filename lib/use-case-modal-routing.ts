@@ -1,26 +1,24 @@
 'use client';
 
 import { useState, useCallback, useEffect, useRef } from 'react';
-import { SCENE_CONFIGS, TOTAL_SCENES, evaluateSurface } from '@/lib/cylinder-manifold';
+import { getCaseFocusU } from '@/lib/cylinder-manifold';
 
 interface UseCaseModalRoutingOptions {
   getCurrentU: () => number;
-  onScrollToMilestone: (milestone: number) => void;
+  onScrollToU: (u: number) => void;
 }
 
 export function useCaseModalRouting({
   getCurrentU,
-  onScrollToMilestone,
+  onScrollToU,
 }: UseCaseModalRoutingOptions) {
   const [isVrakCaseOpen, setIsVrakCaseOpen] = useState(false);
-  const [vrakDockBounce, setVrakDockBounce] = useState(false);
   const [isMorfCaseOpen, setIsMorfCaseOpen] = useState(false);
-  const [morfDockBounce, setMorfDockBounce] = useState(false);
 
-  const onScrollToMilestoneRef = useRef(onScrollToMilestone);
+  const onScrollToURef = useRef(onScrollToU);
   useEffect(() => {
-    onScrollToMilestoneRef.current = onScrollToMilestone;
-  }, [onScrollToMilestone]);
+    onScrollToURef.current = onScrollToU;
+  }, [onScrollToU]);
 
   const getCurrentURef = useRef(getCurrentU);
   useEffect(() => {
@@ -38,17 +36,12 @@ export function useCaseModalRouting({
 
   const handleCloseVrakCase = useCallback(() => {
     setIsVrakCaseOpen(false);
-    setVrakDockBounce(true);
-    setTimeout(() => setVrakDockBounce(false), 900);
 
     try {
-      window.history.pushState(null, '', '/');
+      window.history.replaceState(null, '', '/');
     } catch {}
 
-    const currentMilestone = evaluateSurface(getCurrentURef.current()).activeMilestone;
-    const vrakIndex = SCENE_CONFIGS.findIndex((s) => s.id === 'vrak');
-    const nearestVrak = Math.round((currentMilestone - vrakIndex) / TOTAL_SCENES) * TOTAL_SCENES + vrakIndex;
-    onScrollToMilestoneRef.current(nearestVrak);
+    // Keep the exact scroll position at which the image was opened.
   }, []);
 
   // MORF controls
@@ -62,35 +55,27 @@ export function useCaseModalRouting({
 
   const handleCloseMorfCase = useCallback(() => {
     setIsMorfCaseOpen(false);
-    setMorfDockBounce(true);
-    setTimeout(() => setMorfDockBounce(false), 900);
 
     try {
-      window.history.pushState(null, '', '/');
+      window.history.replaceState(null, '', '/');
     } catch {}
 
-    const currentMilestone = evaluateSurface(getCurrentURef.current()).activeMilestone;
-    const morfIndex = SCENE_CONFIGS.findIndex((s) => s.id === 'morf');
-    const nearestMorf = Math.round((currentMilestone - morfIndex) / TOTAL_SCENES) * TOTAL_SCENES + morfIndex;
-    onScrollToMilestoneRef.current(nearestMorf);
+    // Returning to the same image avoids a perceptible re-centering jump.
   }, []);
 
   // Sync with browser deep links
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    const vrakIdx = SCENE_CONFIGS.findIndex((s) => s.id === 'vrak');
-    const morfIdx = SCENE_CONFIGS.findIndex((s) => s.id === 'morf');
-
     const timer = setTimeout(() => {
       const params = new URLSearchParams(window.location.search);
       if (params.get('scene') === 'vrak' || params.get('case') === 'vrak' || window.location.pathname === '/work/vrak') {
-        onScrollToMilestoneRef.current(vrakIdx >= 0 ? vrakIdx : 4);
+        onScrollToURef.current(getCaseFocusU('vrak', getCurrentURef.current()));
         if (params.get('case') === 'vrak' || window.location.pathname === '/work/vrak') {
           setIsVrakCaseOpen(true);
         }
       } else if (params.get('scene') === 'morf' || params.get('case') === 'morf' || window.location.pathname === '/work/morf') {
-        onScrollToMilestoneRef.current(morfIdx >= 0 ? morfIdx : 3);
+        onScrollToURef.current(getCaseFocusU('morf', getCurrentURef.current()));
         if (params.get('case') === 'morf' || window.location.pathname === '/work/morf') {
           setIsMorfCaseOpen(true);
         }
@@ -99,18 +84,16 @@ export function useCaseModalRouting({
 
     const onPopState = () => {
       if (window.location.pathname === '/work/vrak') {
-        onScrollToMilestoneRef.current(vrakIdx >= 0 ? vrakIdx : 4);
+        onScrollToURef.current(getCaseFocusU('vrak', getCurrentURef.current()));
         setIsVrakCaseOpen(true);
         setIsMorfCaseOpen(false);
       } else if (window.location.pathname === '/work/morf') {
-        onScrollToMilestoneRef.current(morfIdx >= 0 ? morfIdx : 3);
+        onScrollToURef.current(getCaseFocusU('morf', getCurrentURef.current()));
         setIsMorfCaseOpen(true);
         setIsVrakCaseOpen(false);
       } else {
         setIsVrakCaseOpen(false);
         setIsMorfCaseOpen(false);
-        setVrakDockBounce(true);
-        setTimeout(() => setVrakDockBounce(false), 900);
       }
     };
 
@@ -123,9 +106,7 @@ export function useCaseModalRouting({
 
   return {
     isVrakCaseOpen,
-    vrakDockBounce,
     isMorfCaseOpen,
-    morfDockBounce,
     isAnyCaseOpen: isVrakCaseOpen || isMorfCaseOpen,
     handleOpenVrakCase,
     handleCloseVrakCase,

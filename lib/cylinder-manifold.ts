@@ -2,12 +2,12 @@
    Continuous Cylindrical Manifold Mathematics & Configuration
    --------------------------------------------------------------------------
    The entire homepage is a single, continuous infinite ribbon wrapped around
-   an invisible vertical drum. Hero -> About -> MORF -> VRAK -> Small Works
-   -> Contact -> Hero -> ...
+   an invisible vertical drum. Portrait -> Design/Brand -> Disciplines ->
+   MORF/VRAK -> Contact -> Portrait -> ...
    
    A single scalar progress coordinate u in (-inf, +inf) deterministically
    governs both the global cylinder rotation and the local scroll-scrubbed
-   scenes (About disintegration and Small Works carousel rotation).
+   scenes (portrait reveal, Design/Brand and selected projects).
    ========================================================================== */
 
 export interface SceneConfig {
@@ -19,13 +19,13 @@ export interface SceneConfig {
 
 export const SCENE_CONFIGS: SceneConfig[] = [
   { id: 'portrait', label: 'Manifesto', dwell: 1.80, transition: 1.00 },
+  { id: 'design-brand', label: 'Design and Brand', dwell: 3.60, transition: 0.85 },
   { id: 'disciplines', label: 'Disciplines', dwell: 1.25, transition: 1.00 },
-  { id: 'morf', label: 'MORF', dwell: 0.75, transition: 1.00 },
-  { id: 'vrak', label: 'VRAK', dwell: 0.75, transition: 1.00 },
+  { id: 'cases', label: 'Selected Work', dwell: 3.10, transition: 0.85 },
   { id: 'contact', label: 'Contact', dwell: 0.75, transition: 1.00 },
 ];
 
-export const TOTAL_SCENES = SCENE_CONFIGS.length; // Exactly 5
+export const TOTAL_SCENES = SCENE_CONFIGS.length;
 
 export interface SceneSegment {
   sceneIndex: number;
@@ -67,7 +67,7 @@ export interface SurfaceState {
  * cylinder position and local scrubbed parameters.
  * 
  * Guarantees:
- * 1. Zero velocity discontinuity on scene entry/exit (quintic smoothstep).
+ * 1. Zero velocity discontinuity on scene entry/exit (cubic smoothstep).
  * 2. Impossible to skip past interactive scroll animations on fast gestures.
  * 3. 100% reversible in forward and backward directions.
  * 4. Infinite seamless wrapping with no seams or scroll jumps.
@@ -104,8 +104,9 @@ export function evaluateSurface(u: number): SurfaceState {
       const baseMilestone = cycleIndex * TOTAL_SCENES + i;
       const t = (r - seg.transStart) / (seg.transEnd - seg.transStart); // [0, 1]
 
-      // Quintic smoothstep S(t) = 6t^5 - 15t^4 + 10t^3 (0 first and second derivatives at endpoints)
-      const smoothedT = t * t * t * (t * (6 * t - 15) + 10);
+      // A short cubic handoff keeps the drum continuous without the long,
+      // almost-stationary edges of the former quintic transition.
+      const smoothedT = t * t * (3 - 2 * t);
       const cylinderPos = baseMilestone + smoothedT;
       const activeMilestone = Math.round(cylinderPos);
 
@@ -149,6 +150,22 @@ export function getDwellCenterU(milestone: number): number {
 
 export function getSceneIndex(milestone: number): number {
   return ((milestone % TOTAL_SCENES) + TOTAL_SCENES) % TOTAL_SCENES;
+}
+
+/** Local progress through a panel's stationary range, independent of loop count. */
+export function getSceneDwellProgress(milestone: number, u: number): number {
+  const cycleIndex = Math.floor(milestone / TOTAL_SCENES);
+  const segment = SCENE_SEGMENTS[getSceneIndex(milestone)];
+  const start = cycleIndex * CYCLE_LENGTH + segment.dwellStart;
+  return Math.max(0, Math.min(1, (u - start) / (segment.dwellEnd - segment.dwellStart)));
+}
+
+/** Focus a particular case inside the shared work scene, including later loops. */
+export function getCaseFocusU(caseId: 'morf' | 'vrak', nearU = 0): number {
+  const segment = SCENE_SEGMENTS[SCENE_CONFIGS.findIndex((scene) => scene.id === 'cases')];
+  const offset = segment.dwellStart + (segment.dwellEnd - segment.dwellStart) * (caseId === 'morf' ? 0.03 : 0.97);
+  const cycle = Math.floor(nearU / CYCLE_LENGTH);
+  return cycle * CYCLE_LENGTH + offset;
 }
 
 /**
