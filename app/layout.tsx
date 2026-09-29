@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { Manrope, Anybody, Onest } from 'next/font/google';
 import './globals.css';
 import { GlobalElasticCursor } from '@/components/global-elastic-cursor';
+import { Analytics } from '@vercel/analytics/next';
 
 const manrope = Manrope({
   subsets: ['latin', 'cyrillic'],
@@ -62,6 +63,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <body className="bg-[var(--bg)] text-[var(--text)] font-sans antialiased selection:bg-[var(--text)] selection:text-[var(--surface)]">
         <GlobalElasticCursor />
         {children}
+        <Analytics />
       </body>
     </html>
   );
