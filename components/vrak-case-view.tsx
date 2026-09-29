@@ -867,7 +867,7 @@ export function VrakCaseView({ onClose }: VrakCaseViewProps): React.ReactElement
           className="vrak-sticky-grid-section relative w-full h-[380vh] bg-[var(--bg)] motion-reduce:h-[100dvh]"
           aria-label="VRAK campaign finale and gallery"
         >
-          <div className="vrak-sticky-grid-wrapper sticky top-0 w-full h-screen max-h-[100dvh] overflow-hidden flex items-center justify-center relative select-none">
+          <div className="vrak-sticky-grid-wrapper sticky top-0 w-full h-[100dvh] overflow-hidden flex items-center justify-center relative select-none">
             {/* Center Content: revealed in the aperture created by the parting images */}
             <div className="vrak-sticky-center-content absolute inset-0 z-20 flex flex-col items-center justify-center text-center px-6 pointer-events-none">
               <h2 className="vrak-sticky-title font-manrope font-bold text-4xl sm:text-6xl md:text-7xl lg:text-8xl tracking-tight text-[var(--text)] uppercase leading-none select-none">
@@ -879,7 +879,7 @@ export function VrakCaseView({ onClose }: VrakCaseViewProps): React.ReactElement
             </div>
 
             {/* Gallery Grid (3 Columns x 2 Rows = 6 Assets) - Significantly larger initial presentation */}
-            <div className="vrak-sticky-gallery relative z-10 w-[96vw] sm:w-[94vw] lg:w-[92vw] max-w-[1280px] 2xl:max-w-[1400px] flex items-center justify-center motion-reduce:opacity-25">
+            <div className="vrak-sticky-gallery relative z-10 w-[96vw] sm:w-[94vw] lg:w-[92vw] max-w-[1280px] 2xl:max-w-[1400px] flex items-center justify-center motion-reduce:opacity-0">
               <div className="vrak-sticky-grid grid grid-cols-3 gap-3.5 sm:gap-6 lg:gap-8 w-full items-center justify-items-center will-change-transform">
                 {/* Col 0: Item 0 (Top-Left) */}
                 <div className="vrak-sticky-grid-item relative w-full aspect-[4/5] overflow-hidden bg-[var(--surface-dark)] will-change-transform shadow-2xl">

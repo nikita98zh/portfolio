@@ -122,6 +122,7 @@ export function MorfCaseView({ onClose }: MorfCaseViewProps): React.ReactElement
     mm.add(
       {
         desktop: '(min-width: 768px)',
+        mobile: '(max-width: 767px)',
         reduceMotion: '(prefers-reduced-motion: reduce)',
       },
       (media) => {
@@ -762,7 +763,7 @@ export function MorfCaseView({ onClose }: MorfCaseViewProps): React.ReactElement
           className="morf-sticky-grid-section relative z-20 w-full h-[380vh] bg-[var(--bg)] motion-reduce:h-[100dvh]"
           aria-label="MORF campaign finale and gallery"
         >
-          <div className="morf-sticky-grid-wrapper sticky top-0 w-full h-screen max-h-[100dvh] overflow-hidden flex items-center justify-center relative select-none">
+          <div className="morf-sticky-grid-wrapper sticky top-0 w-full h-[100dvh] overflow-hidden flex items-center justify-center relative select-none">
             {/* Center content appears in the aperture created by the parting images. */}
             <div className="morf-sticky-center-content absolute inset-0 z-20 flex flex-col items-center justify-center text-center px-6 pointer-events-none">
               <h2 className="morf-sticky-title font-manrope font-bold text-4xl sm:text-6xl md:text-7xl lg:text-8xl tracking-tight text-[var(--text)] uppercase leading-none select-none">
@@ -774,7 +775,7 @@ export function MorfCaseView({ onClose }: MorfCaseViewProps): React.ReactElement
             </div>
 
             {/* Same three-column gallery layout as VRAK. */}
-            <div className="morf-sticky-gallery relative z-10 w-[96vw] sm:w-[94vw] lg:w-[92vw] max-w-[1280px] 2xl:max-w-[1400px] flex items-center justify-center motion-reduce:opacity-25">
+            <div className="morf-sticky-gallery relative z-10 w-[96vw] sm:w-[94vw] lg:w-[92vw] max-w-[1280px] 2xl:max-w-[1400px] flex items-center justify-center motion-reduce:opacity-0">
               <div className="morf-sticky-grid grid grid-cols-3 gap-3.5 sm:gap-6 lg:gap-8 w-full items-center justify-items-center will-change-transform">
                 {MORF_GALLERY_ITEMS.map((item, index) => (
                   <div

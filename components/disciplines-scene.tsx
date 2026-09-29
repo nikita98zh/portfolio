@@ -86,9 +86,9 @@ export const DisciplinesScene = memo(function DisciplinesScene({
     if (!previous || Math.hypot(event.clientX - previous.x, event.clientY - previous.y) < 58 || now - lastSpawnAtRef.current < 80) return;
 
     const images = disciplineWorks.find((item) => item.id === id)?.images;
-    if (!images || nextIndexRef.current >= images.length) return;
+    if (!images) return;
 
-    const imageIndex = nextIndexRef.current++;
+    const imageIndex = nextIndexRef.current++ % images.length;
     lastSpawnPointRef.current = { x: event.clientX, y: event.clientY };
     lastSpawnAtRef.current = now;
     const frozenX = cardX.get();
@@ -119,7 +119,7 @@ export const DisciplinesScene = memo(function DisciplinesScene({
     pointerX.set(0);
     pointerY.set(0);
     setCards([{ id: ++cardIdRef.current, category: id, imageIndex: next, x: 0, y: 0, rotation: 0 }]);
-    nextIndexRef.current = Math.min(next + 1, images.length);
+    nextIndexRef.current = next + 1;
   }, [cards, pointerX, pointerY]);
 
   // Older layers fall and fade while the last card remains readable.
