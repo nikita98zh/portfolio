@@ -31,6 +31,7 @@ export const disciplineWorks = [
       { src: '/assets/disciplines/marketing_tapin.webp', alt: 'Tap In transit campaign' },
       { src: '/assets/disciplines/marketing_halfhalf.webp', alt: 'Half & Half pizza campaign' },
       { src: '/assets/disciplines/marketing_switch.webp', alt: 'Switch & Save electronics campaign' },
+      { src: '/assets/disciplines/marketing_firstpress.webp', alt: 'First Press olive oil launch campaign' },
     ],
   },
 ] as const;
