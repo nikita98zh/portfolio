@@ -536,10 +536,10 @@ export function MorfCaseView({ onClose }: MorfCaseViewProps): React.ReactElement
                 SOLUTION
               </h2>
               <p className="font-manrope font-extralight text-[var(--text)] text-base sm:text-lg lg:text-xl tracking-[0] leading-7 sm:leading-8 lg:leading-9">
-                I built MORF around a proportional system rather than conventional
-                sizing. One design adapts across three body types, while the
-                identity, art direction and digital experience reinforce the same
-                balance of function, clarity and fashion.
+                I designed MORF&apos;s visual identity, website and marketing
+                materials around its approach to fit. On the site, I made the three
+                body types clear and easy to compare, then used photography and
+                layout to give the product the presence of a fashion label.
               </p>
             </article>
           </div>
@@ -688,11 +688,10 @@ export function MorfCaseView({ onClose }: MorfCaseViewProps): React.ReactElement
                 BUILDING A BRAND THAT FEELS COHERENT BEFORE IT FEELS DECORATIVE.
               </h2>
               <p className="font-manrope font-extralight text-[var(--text)] text-base sm:text-lg lg:text-xl tracking-[0] leading-7 sm:leading-8 lg:leading-9">
-                The visual system was built to feel closer to contemporary fashion
-                than traditional pet retail. I used restrained typography, a neutral
-                palette, generous spacing and a flexible editorial grid to give the
-                product room to lead, while keeping every touchpoint consistent
-                across campaign, product and e-commerce.
+                I wanted the move from campaign to product page to feel natural. A
+                campaign image can make you stop; a product page has to help you
+                decide. I designed both with that difference in mind, keeping MORF
+                recognizable without forcing the same layout onto every format.
               </p>
             </article>
           </div>
