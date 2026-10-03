@@ -21,31 +21,7 @@ export async function preloadImage(src: string): Promise<HTMLImageElement | null
 }
 
 const CRITICAL_HERO_ASSETS = [
-  '/assets/portrait.png',
-  '/assets/portrait-crop.webp',
-  '/assets/work_uiux.png',
-  '/assets/work_uiux_2.png',
-  '/assets/work_uiux_3.png',
-  '/assets/work_uiux_4.png',
-  '/assets/work_uiux_5.png',
-  '/assets/work_brand.png',
-  '/assets/work_brand_2.png',
-  '/assets/work_brand_3.png',
-  '/assets/work_brand_4.png',
-  '/assets/work_brand_5.png',
-  '/assets/work_marketing.png',
-  '/assets/work_marketing_2.png',
-  '/assets/work_marketing_3.png',
-  '/assets/work_marketing_4.png',
-  '/assets/work_marketing_5.png',
-  '/assets/morf_preview.png',
-  '/assets/vrak_hero.png',
-  '/assets/crush_hero.png',
-  '/assets/zip_hero.png',
-  '/assets/twist_hero.png',
-  '/assets/vrak/Crush Can.png',
-  '/assets/vrak/Zip Can.png',
-  '/assets/vrak/Twist Can.png',
+  '/assets/portrait.webp',
 ];
 
 let preloadStarted = false;

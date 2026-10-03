@@ -8,7 +8,7 @@ interface ContactSceneProps {
   onHoverStateChange?: (state: string | null) => void;
 }
 
-type ContactChannel = 'email' | 'behance' | 'linkedin';
+type ContactChannel = 'email' | 'linkedin';
 
 export const ContactScene = memo(function ContactScene({
   isActive = true,
@@ -91,37 +91,13 @@ export const ContactScene = memo(function ContactScene({
         </a>
       </div>
 
-      {/* 
-        SECONDARY CHANNELS: BEHANCE & LINKEDIN
-        Evenly spaced horizontal peers in pure Manrope Bold with mutual dimming
-      */}
+      {/* Direct professional profile */}
       <nav
         aria-label="Direct professional channels"
         className="mt-10 sm:mt-14 md:mt-16 flex items-center justify-center gap-10 sm:gap-16 md:gap-20"
       >
         <a
-          href="https://www.behance.net/nikozhorov"
-          target="_blank"
-          rel="noopener noreferrer"
-          onPointerEnter={() => handlePointerEnter('behance')}
-          onPointerLeave={handlePointerLeave}
-          tabIndex={isActive ? 0 : -1}
-          aria-label="Nikita Zhorov on Behance"
-          className={`group flex items-center gap-1.5 font-manrope font-bold text-sm sm:text-base md:text-lg tracking-[0.16em] uppercase text-[var(--text)] transition-all duration-300 ease-out focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--text)]/40 ${getDimOpacity(
-            'behance',
-            'opacity-70'
-          )}`}
-          style={{
-            fontFamily: 'var(--font-manrope), "Manrope", sans-serif',
-            fontWeight: 700,
-          }}
-        >
-          <span>BEHANCE</span>
-          <ArrowUpRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-        </a>
-
-        <a
-          href="https://www.linkedin.com/in/nikitazhorov"
+          href="https://www.linkedin.com/in/nzhorov/"
           target="_blank"
           rel="noopener noreferrer"
           onPointerEnter={() => handlePointerEnter('linkedin')}

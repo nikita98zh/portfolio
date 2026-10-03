@@ -126,6 +126,7 @@ function ParticleHeadingComponent({
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [fontLoaded, setFontLoaded] = useState(false);
+  const [webglUnavailable, setWebglUnavailable] = useState(false);
   const isActiveRef = useRef(isActive);
   const intensifyRef = useRef(intensify);
   const isReducedMotionRef = useRef(isReducedMotion);
@@ -422,12 +423,18 @@ function ParticleHeadingComponent({
     cameraRef.current = camera;
 
     const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
-    const renderer = new THREE.WebGLRenderer({
-      canvas,
-      alpha: true,
-      antialias: true,
-      powerPreference: 'high-performance',
-    });
+    let renderer: THREE.WebGLRenderer;
+    try {
+      renderer = new THREE.WebGLRenderer({
+        canvas,
+        alpha: true,
+        antialias: true,
+        powerPreference: 'high-performance',
+      });
+    } catch {
+      queueMicrotask(() => setWebglUnavailable(true));
+      return;
+    }
     renderer.setPixelRatio(pixelRatio);
     renderer.setSize(width, height);
     rendererRef.current = renderer;
@@ -819,10 +826,12 @@ function ParticleHeadingComponent({
       ref={containerRef}
       className={`relative select-none cursor-default overflow-visible ${className}`}
     >
-      <HeadingTag className="sr-only">{lines.join(' ')}</HeadingTag>
+      <HeadingTag className={webglUnavailable ? 'flex h-full w-full items-center justify-center px-4 text-center font-manrope font-bold uppercase leading-none tracking-[-0.06em] text-[clamp(56px,14vw,220px)] text-[var(--text)]' : 'sr-only'}>
+        {lines.join(' ')}
+      </HeadingTag>
       <canvas
         ref={canvasRef}
-        className="w-full h-full block pointer-events-auto"
+        className={webglUnavailable ? 'hidden' : 'w-full h-full block pointer-events-auto'}
         style={{
           touchAction: 'none',
         }}
